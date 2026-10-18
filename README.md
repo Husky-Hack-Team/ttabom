@@ -9,8 +9,12 @@ ttabom/
 ├── backend/                  # Python + FastAPI (Vercel project, preset "Other")
 │   ├── api/index.py          # FastAPI app; every route is under /api
 │   ├── requirements.txt      # Deps Vercel installs (fastapi, supabase, python-dotenv)
-│   ├── schema.sql            # transactions table + seed rows (run in Supabase)
+│   ├── schema.sql            # One-file copy of the migration + seed, for the SQL Editor
 │   └── .env.example          # Backend env var template
+├── supabase/                 # Supabase CLI project
+│   ├── config.toml           # CLI config (local stack settings)
+│   ├── migrations/           # Database schema, applied with `supabase db push`
+│   └── seed.sql              # Sample transactions
 ├── frontend/                 # Nuxt 4 + Vue + Tailwind CSS v4 (Vercel project, preset "Nuxt")
 │   ├── app/app.vue
 │   ├── app/pages/index.vue   # Dashboard: balance, add-transaction form, recent activity
@@ -35,7 +39,14 @@ Negative amounts are debits and positive amounts are credits.
 
 Requirements: Python 3.12+, Node.js 22+ (npm 11.21+ recommended; see Troubleshooting), and a Supabase project.
 
-1. **Database.** In the Supabase dashboard, open **SQL Editor**, paste in `backend/schema.sql`, and run it.
+1. **Database.** Apply the schema to your Supabase project with the Supabase CLI (run from the repo root; `npx` downloads the CLI, so there's nothing to install):
+   ```sh
+   npx supabase login                                   # opens the browser once
+   npx supabase link --project-ref <your-project-ref>   # the "abcd1234" in https://abcd1234.supabase.co; asks for the DB password
+   npx supabase db push --include-seed                  # creates the table and inserts the sample rows
+   ```
+   Later schema changes go in a new file in `supabase/migrations/` (`npx supabase migration new <name>`), followed by `npx supabase db push`.
+   If you'd rather not use the CLI, open **SQL Editor** in the Supabase dashboard, paste in `backend/schema.sql`, and run it.
 2. **Backend.**
    ```sh
    cd backend
@@ -105,7 +116,7 @@ Go back to the backend project, set `FRONTEND_URL` to the frontend URL, and **re
 ## Troubleshooting
 
 - **Every backend route returns `{"detail":"Not Found"}` on Vercel**: don't add a `vercel.json` with a catch-all rewrite to the backend. Vercel detects FastAPI from `api/index.py` and sends every path to the app on its own. A rewrite to `/api/index` makes the app see `/api/index` for every request.
-- **`Database error: Could not find the table 'public.transactions'`**: run `backend/schema.sql` in the Supabase SQL Editor of the same project that `SUPABASE_URL` points to.
+- **`Database error: Could not find the table 'public.transactions'`**: the migration hasn't been applied to the project `SUPABASE_URL` points to. Run `npx supabase db push --include-seed` (after `link`), or paste `backend/schema.sql` into that project's SQL Editor.
 - **CORS error in the browser console** ("blocked by CORS policy"): the backend allows only `http://localhost:3000` plus `FRONTEND_URL`. On Vercel, `FRONTEND_URL` must match the frontend's origin exactly: `https://`, no trailing slash, no path. Preview deployments get different URLs and won't match unless you set `FRONTEND_URL` for them too. Locally, the frontend has to run on port 3000.
 - **"Server is missing SUPABASE_URL or SUPABASE_SERVICE_ROLE_KEY"**: locally, check that `backend/.env` exists and is filled in, and restart uvicorn. On Vercel, add the variables in **Project Settings → Environment Variables** for the right environment (Production/Preview), then redeploy.
 - **Frontend still calls `localhost:8000` in production**: `NUXT_PUBLIC_API_BASE` isn't set in the frontend project, or you set it without redeploying.

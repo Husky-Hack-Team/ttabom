@@ -1,4 +1,5 @@
--- Run in the Supabase SQL editor.
+-- One-file version of supabase/migrations + supabase/seed.sql, for pasting into
+-- the Supabase SQL Editor. Prefer `supabase db push` (see README).
 create table if not exists public.transactions (
   id bigint generated always as identity primary key,
   description text not null,
@@ -8,6 +9,9 @@ create table if not exists public.transactions (
 
 -- The backend uses the service role key, which bypasses RLS. Enabling RLS with
 -- no policies keeps the table closed to the public anon key.
+create index if not exists transactions_created_at_idx
+  on public.transactions (created_at desc, id desc);
+
 alter table public.transactions enable row level security;
 
 insert into public.transactions (description, amount, created_at) values
