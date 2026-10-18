@@ -15,31 +15,29 @@ const FRAME_H = 864
 const MARGIN = 32
 const scale = ref(1)
 const appHeight = ref(null)
-const appTop = ref(0)
 
 function measure() {
   scale.value = Math.min(1, (window.innerHeight - MARGIN) / FRAME_H, (window.innerWidth - MARGIN) / FRAME_W)
-  // Follow the visual viewport so the on-screen keyboard never covers the app.
+  // Phones: size the app to the visible area so the on-screen keyboard doesn't
+  // cover it. Only the SIZE follows the viewport, and only on resize: moving the
+  // app to follow visualViewport scroll events fought the user's swipe and made
+  // scrolling feel inverted on real devices. Ignore pinch-zoom sizes.
   const vv = window.visualViewport
-  appHeight.value = vv ? vv.height : window.innerHeight
-  appTop.value = vv ? vv.offsetTop : 0
+  appHeight.value = vv && Math.abs(vv.scale - 1) < 0.01 ? vv.height : window.innerHeight
 }
 onMounted(() => {
   if (!props.fullscreen) return
   measure()
   window.addEventListener('resize', measure)
   window.visualViewport?.addEventListener('resize', measure)
-  window.visualViewport?.addEventListener('scroll', measure)
 })
 onBeforeUnmount(() => {
   window.removeEventListener('resize', measure)
   window.visualViewport?.removeEventListener('resize', measure)
-  window.visualViewport?.removeEventListener('scroll', measure)
 })
 const shellStyle = computed(() => ({
   '--frame-scale': scale.value,
-  '--app-h': appHeight.value ? `${appHeight.value}px` : '100dvh',
-  '--app-top': `${appTop.value}px`
+  '--app-h': appHeight.value ? `${appHeight.value}px` : '100dvh'
 }))
 </script>
 
@@ -142,7 +140,7 @@ const shellStyle = computed(() => ({
     position: fixed;
     left: 0;
     right: 0;
-    top: var(--app-top, 0px);
+    top: 0;
     width: auto;
     height: var(--app-h, 100dvh);
   }

@@ -158,3 +158,15 @@
     padding-right: max(1.25rem, calc(50% - 280px));
   }
 }
+
+/* /prototype: exactly one scroller (the app's content area). The page itself
+   never scrolls or rubber-bands, and overscroll doesn't chain out of the app. */
+html.proto-page,
+body.proto-page {
+  height: 100%;
+  overflow: hidden;
+  overscroll-behavior: none;
+}
+.proto-app .proto-scroll {
+  overscroll-behavior: contain;
+}
