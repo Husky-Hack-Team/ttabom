@@ -1,0 +1,13 @@
+{
+    "workbench.editor.alwaysShowEditorActions": true,
+    "workbench.editor.autoLockGroups": {
+        "agentSessionsWelcomePage": true,
+        "workbench.editor.browser": true,
+        "workbench.editor.chatSession": true,
+        "default": true,
+        "workbench.editor.chatDebug": true,
+        "workbench.editorinputs.searchEditorInput": true,
+        "repl": true
+    },
+    "workbench.editor.centeredLayoutFixedWidth": true
+}
