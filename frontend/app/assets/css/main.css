@@ -1,1 +1,9 @@
 @import "tailwindcss";
+
+/* Demo and replay screens: Apple-style system type, 18px body minimum. */
+.demo-surface {
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", system-ui, sans-serif;
+  font-size: 1.125rem;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}

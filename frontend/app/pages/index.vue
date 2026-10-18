@@ -89,8 +89,11 @@ const inputClass =
 <template>
   <div class="min-h-screen bg-slate-100 text-slate-900">
     <header class="bg-blue-900 text-white">
-      <div class="mx-auto max-w-3xl px-4 py-4">
+      <div class="mx-auto flex max-w-3xl items-center justify-between px-4 py-4">
         <p class="text-lg font-semibold">ttabom</p>
+        <NuxtLink to="/demo" class="rounded font-medium underline underline-offset-4 focus:outline-none focus-visible:ring-4 focus-visible:ring-white/60">
+          Demo mode
+        </NuxtLink>
       </div>
     </header>
 

@@ -6,8 +6,21 @@ A small banking-style dashboard: a Nuxt frontend and a FastAPI backend backed by
 
 ```
 ttabom/
+├── analysis/                 # Data replay (pandas; runs locally, never deployed)
+│   ├── engine.py, config.py  # Verified Contact Payment check (pure Python)
+│   ├── oracle.py             # The only reader of the Member Key (scoring + simulated answers)
+│   ├── overlay.py            # Seeded overlay → data/overlay/
+│   ├── replay.py             # Scores the check → analysis/out/
+│   ├── load_supabase.py      # Upserts the replay into the sim_* tables
+│   ├── pilot.md              # 90-day pilot plan
+│   └── tests/                # pytest
+├── data/
+│   ├── raw/                  # HuskyHack v2 events, Member Key, data dictionary (.xlsx)
+│   └── overlay/              # Synthetic contacts, accounts, channels, stated recipients (+ README of assumptions)
+├── docs/                     # Challenge docs and design resolutions
 ├── backend/                  # Python + FastAPI (Vercel project, preset "Other")
 │   ├── api/index.py          # FastAPI app; every route is under /api
+│   ├── vcp/                  # Copy of the engine + read-only replay routes (kept in sync by a test)
 │   ├── requirements.txt      # Deps Vercel installs (fastapi, supabase, python-dotenv)
 │   ├── schema.sql            # One-file copy of the migration + seed, for the SQL Editor
 │   └── .env.example          # Backend env var template
@@ -18,6 +31,9 @@ ttabom/
 ├── frontend/                 # Nuxt 4 + Vue + Tailwind CSS v4 (Vercel project, preset "Nuxt")
 │   ├── app/app.vue
 │   ├── app/pages/index.vue   # Dashboard: balance, add-transaction form, recent activity
+│   ├── app/pages/demo.vue    # Demo mode: links to the employee screens
+│   ├── app/pages/replay.vue  # Data Replay: member picker, timeline, metrics
+│   ├── app/pages/case.vue    # Employee case screen (Linda's wire, hold timer)
 │   ├── app/assets/css/main.css
 │   ├── nuxt.config.ts
 │   └── .env.example          # Frontend env var template
@@ -32,6 +48,11 @@ ttabom/
 | GET    | `/api/transactions` | Transactions, newest first                    |
 | POST   | `/api/transactions` | Body `{"description": str, "amount": number}` |
 | GET    | `/api/balance`      | `{"balance": number}`, the sum of all amounts |
+| GET    | `/api/replay/metrics` | Replay headline metrics and walkthroughs |
+| GET    | `/api/replay/members?filter=all\|anchor\|lookalike\|scam\|routine` | Members for the picker |
+| GET    | `/api/replay/members/{id}` | One member's events, our decisions, and summary |
+| GET    | `/api/replay/cases` | Held payments for the employee case screen (engine output only) |
+| POST   | `/api/vcp/check` | Run the check on one payment: body `{"event", "history", "ctx"}` |
 
 Negative amounts are debits and positive amounts are credits.
 
@@ -62,6 +83,22 @@ Requirements: Python 3.12+, Node.js 22+ (npm 11.21+ recommended; see Troubleshoo
    npm install
    ```
    You only need `cp .env.example .env` if your API runs somewhere other than `http://localhost:8000`.
+
+## Data replay
+
+Synthetic data, about 41% scam victims by design. Not a measure of real-world performance.
+
+```sh
+python3 -m venv analysis/.venv
+analysis/.venv/bin/pip install -r analysis/requirements.txt
+analysis/.venv/bin/python analysis/overlay.py         # data/overlay/ (seed 2026, deterministic)
+analysis/.venv/bin/python analysis/replay.py          # analysis/out/ and a metrics summary
+analysis/.venv/bin/python -m pytest analysis/tests    # engine and replay tests
+npx supabase db push                                  # creates the sim_* tables
+analysis/.venv/bin/python analysis/load_supabase.py   # upserts the replay (uses backend/.env)
+```
+
+`analysis/engine.py` and `analysis/config.py` are copied to `backend/vcp/`. After editing them, run `cp analysis/engine.py analysis/config.py backend/vcp/`; a test fails if the copies drift.
 
 ## Running locally
 
