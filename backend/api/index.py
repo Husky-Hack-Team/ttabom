@@ -1,4 +1,5 @@
 import os
+import sys
 from decimal import Decimal
 from functools import lru_cache
 
@@ -9,6 +10,10 @@ from fastapi.responses import JSONResponse
 from postgrest.exceptions import APIError
 from pydantic import BaseModel, Field, field_validator
 from supabase import Client, create_client
+
+# backend/ on the path so the shared engine package (backend/vcp) imports on Vercel too.
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+from vcp.routes import build_router  # noqa: E402
 
 # Loads backend/.env locally; on Vercel, env vars come from the project settings.
 load_dotenv()
@@ -111,3 +116,4 @@ def get_balance():
 
 
 app.include_router(router)
+app.include_router(build_router(get_supabase))
