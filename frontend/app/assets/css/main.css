@@ -111,3 +111,50 @@
   font-size: 1.125rem;
   line-height: 1.6;
 }
+
+/* /prototype: in-phone controls. Every target is at least 44px. */
+@layer components {
+  .proto-chip {
+    @apply inline-flex items-center gap-1.5 rounded-full border-2 border-accent bg-white px-4 text-base font-semibold text-accent;
+    min-height: 44px;
+  }
+  .proto-chip:active {
+    @apply bg-accent-soft;
+  }
+  .proto-icon-btn {
+    @apply inline-flex items-center gap-1 rounded-full px-3 text-base font-semibold text-accent disabled:opacity-40;
+    min-height: 44px;
+    min-width: 44px;
+  }
+  .proto-app-title {
+    @apply px-3 font-display text-xl text-navy;
+  }
+  .proto-story {
+    @apply flex w-full items-center gap-4 rounded-2xl border-2 border-line bg-white p-4 text-left;
+    min-height: 44px;
+  }
+  .proto-story:active {
+    @apply border-accent bg-accent-soft;
+  }
+}
+/* Keep each screen's primary buttons pinned to the bottom of the app. */
+.proto-app .phone-actions {
+  position: sticky;
+  bottom: -1.5rem; /* cover the scroll area's bottom padding */
+  margin-bottom: -1.5rem;
+  padding-bottom: 1.5rem;
+  background: white;
+}
+.proto-app .link {
+  display: inline-flex;
+  min-height: 44px;
+  align-items: center;
+  justify-content: center;
+}
+/* Phone in landscape: keep a readable column instead of stretching edge to edge. */
+@media (min-width: 640px) and (max-height: 520px) {
+  .proto-app .proto-scroll {
+    padding-left: max(1.25rem, calc(50% - 280px));
+    padding-right: max(1.25rem, calc(50% - 280px));
+  }
+}

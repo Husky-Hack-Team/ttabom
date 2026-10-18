@@ -1,7 +1,8 @@
 <script setup>
-import { CircleCheck, Hourglass, Send, TriangleAlert, Zap } from 'lucide-vue-next'
+import { TriangleAlert, Zap } from 'lucide-vue-next'
 import demo from '~/data/demo.json'
-import { capitalize, formatUsd } from '~/utils/format'
+import { formatUsd } from '~/utils/format'
+import PhoneLegit from '~/components/phone/PhoneLegit.vue'
 
 const emit = defineEmits(['go'])
 const { lookalike: l } = demo
@@ -64,41 +65,7 @@ const timeline = [
 
     <div class="w-full max-w-[390px]">
       <PhoneFrame :label="`Member ${l.member_id}'s phone`" :time="p.time_label.replace(/ [AP]M/, '')">
-        <Transition name="fade-slide" mode="out-in">
-          <div v-if="stage === 'paused'" key="paused" class="flex flex-1 flex-col">
-            <div class="mt-6 flex h-16 w-16 items-center justify-center rounded-full bg-accent-soft">
-              <Hourglass :size="32" class="text-accent" aria-hidden="true" />
-            </div>
-            <h3 class="mt-4 text-[26px]">Quick check with {{ contact.name }}</h3>
-            <p class="mt-3 text-lg">
-              This is a new account for {{ contact.name }}, so we’ve asked on the phone on file since {{ contact.phone_on_file_since_label }}.
-              Nothing has been sent yet.
-            </p>
-            <dl class="mt-5 space-y-2 rounded-2xl bg-page p-4 text-lg">
-              <div class="flex justify-between"><dt class="text-muted">To</dt><dd class="font-bold">{{ contact.name }} · {{ capitalize(contact.relationship) }}</dd></div>
-              <div class="flex justify-between"><dt class="text-muted">Amount</dt><dd class="font-bold">{{ formatUsd(p.amount) }}</dd></div>
-              <div class="flex justify-between"><dt class="text-muted">Account</dt><dd class="font-bold">{{ p.recipient.account_masked }}</dd></div>
-            </dl>
-          </div>
-          <div v-else-if="stage === 'answered'" key="answered" class="flex flex-1 flex-col">
-            <div class="mt-6 flex h-16 w-16 items-center justify-center rounded-full bg-ok-soft">
-              <CircleCheck :size="34" class="text-ok" aria-hidden="true" />
-            </div>
-            <h3 class="mt-4 text-[26px]">{{ contact.name }} confirmed this account.</h3>
-            <p class="mt-3 text-lg">You’re all set. It took about 2 minutes.</p>
-            <div class="mt-auto pt-5">
-              <button type="button" class="btn btn-phone btn-primary text-lg" @click="stage = 'sent'">
-                <Send :size="20" aria-hidden="true" />Send {{ formatUsd(p.amount) }}
-              </button>
-            </div>
-          </div>
-          <div v-else key="sent" class="flex flex-1 flex-col items-center justify-center text-center">
-            <CircleCheck :size="64" class="text-ok" aria-hidden="true" />
-            <p class="mt-4 text-2xl font-bold text-navy">Sent to {{ contact.name }}</p>
-            <p class="mt-2 text-lg text-muted">About 3 minutes from start to finish.</p>
-            <button type="button" class="link mt-6" @click="stage = 'paused'">Start over</button>
-          </div>
-        </Transition>
+        <PhoneLegit v-model:stage="stage" />
       </PhoneFrame>
       <div class="mt-6 text-center">
         <button v-if="stage === 'paused'" type="button" class="btn btn-secondary text-base" @click="stage = 'answered'">
