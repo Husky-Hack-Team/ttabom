@@ -1,16 +1,14 @@
 <script setup>
 // Step 5 phone: report fraud after "Send anyway", and the recovery checklist.
-// Shared by the walkthrough (StepReport) and the standalone /prototype app.
+// Used by the walkthrough (StepReport).
 import { CircleCheck, FileText, Lock, Phone, ShieldAlert, Undo2 } from 'lucide-vue-next'
 import demo from '~/data/demo.json'
 import { formatUsd } from '~/utils/format'
-import StoryEndActions from '~/components/phone/StoryEndActions.vue'
 
 const props = defineProps({
-  screen: { type: String, default: undefined }, // ask | done
-  standalone: { type: Boolean, default: false }
+  screen: { type: String, default: undefined } // ask | done
 })
-const emit = defineEmits(['update:screen', 'other-story', 'home'])
+const emit = defineEmits(['update:screen'])
 
 const { scam } = demo
 const p = scam.payment
@@ -44,8 +42,7 @@ watch(reported, (v) => emit('update:screen', v ? 'done' : 'ask'))
       <p class="mt-5 flex items-start gap-2 rounded-2xl bg-page p-4 text-base">
         <CircleCheck :size="20" class="mt-0.5 shrink-0 text-accent" aria-hidden="true" />Recovery isn’t guaranteed; reporting fast helps.
       </p>
-      <button v-if="!standalone" type="button" class="link mt-auto pt-4 text-center" @click="reported = false">Start over</button>
-      <StoryEndActions v-else @other="emit('other-story')" @home="emit('home')" />
+      <button type="button" class="link mt-auto pt-4 text-center" @click="reported = false">Start over</button>
     </div>
   </Transition>
 </template>

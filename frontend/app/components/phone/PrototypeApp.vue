@@ -1,52 +1,39 @@
 <script setup>
-// The standalone /prototype app: only the phone, driven entirely from inside it.
-// It reuses the walkthrough's phone screens (components/phone/*) in standalone
-// mode and adds a home screen, an in-app header (Back · Home · Help) and a
-// Help sheet with the synthetic-data disclaimer.
-import { ArrowRight, ChevronLeft, ChevronRight, CircleCheck, CircleHelp, House, ShieldAlert, Smartphone, X } from 'lucide-vue-next'
+// The standalone /prototype app: Linda's story only, on one phone, driven
+// entirely from inside it. It reuses the walkthrough's phone screens
+// (components/phone/*) in standalone mode and adds an in-app header
+// (Back · Start over · Help) and a Help sheet with the synthetic-data disclaimer.
+// "Send money" has a recipient picker: Tommy (default), Margaret, Daniel, or a
+// custom recipient, which goes through a "Do you know this person?" question
+// and a deterministic risk check instead of an ownership check.
+import { ArrowRight, Check, ChevronLeft, CircleHelp, Headset, Plus, RotateCcw, Smartphone, X } from 'lucide-vue-next'
 import demo from '~/data/demo.json'
 import { formatUsd } from '~/utils/format'
 import PhoneFrame from '~/components/PhoneFrame.vue'
 import PhoneSendMoney from '~/components/phone/PhoneSendMoney.vue'
 import PhonePaused from '~/components/phone/PhonePaused.vue'
 import PhoneTwoViews from '~/components/phone/PhoneTwoViews.vue'
-import PhoneReport from '~/components/phone/PhoneReport.vue'
-import PhoneLegit from '~/components/phone/PhoneLegit.vue'
+import PhoneCustomPayment from '~/components/phone/PhoneCustomPayment.vue'
+import { RECIPIENTS, recipientById } from '~/data/prototypeRecipients'
+import { KNOW_ANSWERS } from '~/utils/riskCheck'
 
-const { scam, lookalike } = demo
+const { scam } = demo
 
 // Each screen's first sub-screen, so Back can always restore an exact state.
-const FIRST_SUB = { home: null, send: 'form', paused: 'paused', views: 'main', report: 'ask', legit: 'paused' }
-const STORY_OF = { send: 'linda', paused: 'linda', views: 'linda', report: 'linda', legit: 'uma' }
-const START_OF = { linda: 'send', uma: 'legit' }
-const PEOPLE = {
-  linda: { id: 'linda', name: scam.member_name, color: 'linda' },
-  tommy: { id: 'tommy', name: scam.contact.name, color: 'tommy' }
-}
+const FIRST_SUB = { send: 'form', paused: 'paused', views: 'main', custom: 'form' }
+const FIRST_SCREEN = 'send'
 
-const STORIES = [
-  {
-    id: 'linda',
-    name: scam.member_name,
-    avatar: scam.member_name,
-    line: `A caller says her grandson ${scam.contact.name} needs ${formatUsd(scam.payment.amount)} by ${scam.payment.rail.toLowerCase()}.`,
-    tag: 'Scam',
-    icon: ShieldAlert,
-    tagClass: 'border-alert text-alert'
-  },
-  {
-    id: 'uma',
-    name: lookalike.contact.name,
-    avatar: lookalike.contact.name,
-    line: `A family member sends ${formatUsd(lookalike.payment.amount)} to ${lookalike.contact.name}’s new account.`,
-    tag: 'Legit look-alike',
-    icon: CircleCheck,
-    tagClass: 'border-ok text-ok'
-  }
-]
-
+// fresh() resets a screen; who Linda is paying (recipient), her answer to
+// "Do you know this person?" (knows) and where the money would go (dest) carry over.
 const fresh = (screen) => ({ screen, sub: FIRST_SUB[screen], view: 'linda', answer: null })
-const state = reactive(fresh('home'))
+const START = () => ({ ...fresh(FIRST_SCREEN), recipient: 'tommy', knows: null, dest: null })
+const state = reactive(START())
+const person = computed(() => recipientById(state.recipient))
+const PEOPLE = computed(() => ({
+  linda: { id: 'linda', name: scam.member_name, color: 'linda' },
+  // The contact's phone (Tommy, Margaret or Daniel) uses the contact colors.
+  contact: { id: person.value.id, name: person.value.name, color: 'tommy' }
+}))
 const history = []
 const canGoBack = ref(false)
 
@@ -76,27 +63,19 @@ function back() {
   canGoBack.value = history.length > 0
   afterNavigate()
 }
-function home() {
+// Start over: back to Linda's first screen with an empty history.
+function restart() {
   history.length = 0
   canGoBack.value = false
-  Object.assign(state, fresh('home'))
+  Object.assign(state, START())
   afterNavigate()
 }
-function startStory(id) {
-  history.length = 0
-  history.push(fresh('home')) // Back from a story's first screen returns home.
-  canGoBack.value = true
-  Object.assign(state, fresh(START_OF[id]))
-  afterNavigate()
-}
-const otherStory = () => startStory(STORY_OF[state.screen] === 'linda' ? 'uma' : 'linda')
 
 const currentPhoneKey = computed(() => {
-  if (state.screen === 'home' || state.screen === 'legit') return null
-  if (state.screen === 'views' && state.view === 'tommy') return 'tommy'
+  if (state.screen === 'views' && state.view === 'tommy') return 'contact'
   return 'linda'
 })
-const currentPhone = computed(() => currentPhoneKey.value ? PEOPLE[currentPhoneKey.value] : null)
+const currentPhone = computed(() => PEOPLE.value[currentPhoneKey.value])
 
 // Make the handoff between Linda and Tommy visually explicit. The state changes
 // immediately; this short overlay confirms that the prototype moved devices.
@@ -104,25 +83,19 @@ const switching = ref(null)
 let switchTimer
 watch(currentPhoneKey, (next, previous) => {
   if (!next || !previous || next === previous) return
-  switching.value = { from: PEOPLE[previous], to: PEOPLE[next] }
+  switching.value = { from: PEOPLE.value[previous], to: PEOPLE.value[next] }
   clearTimeout(switchTimer)
   switchTimer = setTimeout(() => { switching.value = null }, 900)
 })
 onBeforeUnmount(() => clearTimeout(switchTimer))
 
-const frameTime = computed(() =>
-  (state.screen === 'legit' ? lookalike.payment.time_label : scam.payment.time_label).replace(/ [AP]M/, '')
-)
+const frameTime = scam.payment.time_label.replace(/ [AP]M/, '')
 const frameLabel = computed(() => {
-  if (state.screen === 'home') return 'Prototype: choose a story'
-  if (state.screen === 'legit') return `Member ${lookalike.member_id}'s phone`
-  if (state.screen === 'views' && state.view === 'tommy') return `${scam.contact.name}'s phone`
+  if (state.screen === 'views' && state.view === 'tommy') return `${person.value.firstName}'s phone`
   return `${scam.member_name}'s phone`
 })
 const whosePhone = computed(() => {
-  if (state.screen === 'home') return 'Stories'
-  if (state.screen === 'legit') return 'Family member’s phone'
-  if (state.screen === 'views' && state.view === 'tommy') return `${scam.contact.name}’s phone`
+  if (state.screen === 'views' && state.view === 'tommy') return `${person.value.firstName}’s phone`
   return `${scam.member_name}’s phone`
 })
 
@@ -133,7 +106,7 @@ let lastHeading = ''
 function afterNavigate() {
   setTimeout(() => {
     const el = content.value?.querySelector('h3, [data-screen-title]')
-    if (!el) return
+    if (!el || sheetOpen.value) return // a sheet or modal has focus
     const text = el.textContent.trim()
     if (text === lastHeading) return
     lastHeading = text
@@ -143,6 +116,85 @@ function afterNavigate() {
     content.value.scrollTop = 0
   }, 450)
 }
+
+// "Talk to a Sound specialist" (Linda) / "Talk to a person" (Tommy): a real person calls back.
+const specialist = ref(null) // null | 'linda' | 'tommy'
+const specialistAmount = ref(scam.payment.amount)
+const specialistSheet = ref(null)
+const specialistClose = ref(null)
+let specialistReturn = null
+function openSpecialist(who, amount = scam.payment.amount) {
+  specialistAmount.value = amount
+  specialistReturn = document.activeElement
+  specialist.value = who
+  nextTick(() => specialistClose.value?.focus())
+}
+function closeSpecialist() {
+  specialist.value = null
+  nextTick(() => specialistReturn?.focus?.())
+}
+function specialistKeydown(e) {
+  if (e.key === 'Escape') return closeSpecialist()
+  if (e.key === 'Tab') { e.preventDefault(); specialistClose.value?.focus() }
+}
+// Keep Tab inside an open sheet or modal.
+function trapTab(e, el) {
+  if (e.key !== 'Tab' || !el) return
+  const items = [...el.querySelectorAll('button:not([disabled])')]
+  const first = items[0]
+  const last = items[items.length - 1]
+  if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus() }
+  else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus() }
+}
+
+// Recipient picker (bottom sheet): rows show only avatar, name and relationship.
+const pickerOpen = ref(false)
+const pickerSheet = ref(null)
+let pickerReturn = null
+function openPicker() {
+  pickerReturn = document.activeElement
+  pickerOpen.value = true
+  nextTick(() => (pickerSheet.value?.querySelector('[aria-checked="true"]') ?? pickerSheet.value?.querySelector('button'))?.focus())
+}
+function closePicker(restoreFocus = true) {
+  pickerOpen.value = false
+  if (restoreFocus) nextTick(() => pickerReturn?.focus?.())
+}
+function pickerKeydown(e) {
+  if (e.key === 'Escape') return closePicker()
+  trapTab(e, pickerSheet.value)
+}
+function chooseRecipient(id) {
+  closePicker(false)
+  if (state.screen === 'send' && state.recipient === id) return nextTick(() => pickerReturn?.focus?.())
+  navigate({ ...fresh('send'), recipient: id, dest: null })
+}
+function chooseCustom() {
+  closePicker(false)
+  navigate({ ...fresh('custom'), sub: 'ask', knows: null, dest: null })
+}
+
+// "Do you know this person?": a step of its own (sub 'ask'), so Back returns to
+// it and a different answer recomputes the risk on the next Review.
+const knowOpen = computed(() => state.screen === 'custom' && state.sub === 'ask')
+const knowModal = ref(null)
+watch(knowOpen, (open) => {
+  if (open) nextTick(() => (knowModal.value?.querySelector('[aria-pressed="true"]') ?? knowModal.value?.querySelector('button'))?.focus())
+})
+function answerKnow(id) {
+  navigate({ sub: 'form', knows: id })
+}
+function closeKnow() {
+  // Esc / Close: back out of this step and reopen the picker.
+  back()
+  nextTick(openPicker)
+}
+function knowKeydown(e) {
+  if (e.key === 'Escape') return closeKnow()
+  trapTab(e, knowModal.value)
+}
+
+const sheetOpen = computed(() => helpOpen.value || !!specialist.value || pickerOpen.value || knowOpen.value)
 
 // Help sheet
 const helpOpen = ref(false)
@@ -171,15 +223,16 @@ function helpKeydown(e) {
 <template>
   <PhoneFrame :label="frameLabel" :time="frameTime" fullscreen>
     <div class="proto-app relative flex min-h-0 flex-1 flex-col bg-white">
-      <header class="flex h-14 shrink-0 items-center justify-between gap-2 border-b border-line px-2" :inert="helpOpen || undefined">
-        <button v-if="state.screen !== 'home'" type="button" class="proto-icon-btn" :disabled="!canGoBack" @click="back">
+      <header class="flex h-14 shrink-0 items-center justify-between gap-2 border-b border-line px-2" :inert="sheetOpen || undefined">
+        <!-- Nothing comes before the first screen, so Back appears only once you've moved on. -->
+        <button v-if="canGoBack" type="button" class="proto-icon-btn" @click="back">
           <ChevronLeft :size="24" aria-hidden="true" /><span>Back</span>
         </button>
         <span v-else class="proto-app-title">Demo Prototype</span>
         <p class="sr-only">{{ whosePhone }}</p>
         <div class="flex items-center gap-1">
-          <button v-if="state.screen !== 'home'" type="button" class="proto-icon-btn" @click="home">
-            <House :size="20" aria-hidden="true" /><span>Home</span>
+          <button v-if="canGoBack" type="button" class="proto-icon-btn" @click="restart">
+            <RotateCcw :size="20" aria-hidden="true" /><span>Start over</span>
           </button>
           <button ref="helpButton" type="button" class="proto-icon-btn" aria-haspopup="dialog" @click="openHelp">
             <CircleHelp :size="20" aria-hidden="true" /><span>Help</span>
@@ -189,7 +242,6 @@ function helpKeydown(e) {
 
       <Transition name="owner-swap" mode="out-in">
         <div
-          v-if="currentPhone"
           :key="currentPhone.id"
           class="phone-owner-strip"
           :class="`is-${currentPhone.color}`"
@@ -201,69 +253,58 @@ function helpKeydown(e) {
           </span>
           <Smartphone :size="24" class="shrink-0 opacity-70" aria-hidden="true" />
         </div>
-        <div v-else-if="state.screen === 'legit'" key="family" class="phone-owner-strip is-family">
-          <span class="flex h-[42px] w-[42px] shrink-0 items-center justify-center rounded-full bg-white/80">
-            <Smartphone :size="23" aria-hidden="true" />
-          </span>
-          <span class="min-w-0 flex-1 leading-tight">
-            <span class="block text-xs font-bold uppercase tracking-[0.12em] opacity-70">You’re using</span>
-            <strong class="block text-lg">Family member’s phone</strong>
-          </span>
-        </div>
       </Transition>
 
-      <div ref="content" class="proto-scroll flex min-h-0 flex-1 flex-col overflow-y-auto px-5 pb-6" :inert="helpOpen || undefined">
+      <div ref="content" class="proto-scroll flex min-h-0 flex-1 flex-col overflow-y-auto px-5 pb-6" :inert="sheetOpen || undefined">
         <Transition name="fade-slide" mode="out-in">
-          <div v-if="state.screen === 'home'" key="home" class="flex flex-1 flex-col">
-            <h3 class="mt-6 text-[26px]">Choose a story</h3>
-            <p class="mt-2 text-lg text-muted">Two moments from the HuskyHack data. See how the account check handles each one.</p>
-            <ul class="mt-6 space-y-4">
-              <li v-for="s in STORIES" :key="s.id">
-                <button type="button" class="proto-story" @click="startStory(s.id)">
-                  <PersonAvatar :name="s.avatar" :size="48" />
-                  <span class="min-w-0 flex-1 text-left">
-                    <span class="flex flex-wrap items-center gap-2">
-                      <span class="text-xl font-bold text-navy">{{ s.name }}</span>
-                      <span class="inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-sm font-semibold" :class="s.tagClass">
-                        <component :is="s.icon" :size="14" aria-hidden="true" />{{ s.tag }}
-                      </span>
-                    </span>
-                    <span class="mt-1 block text-base text-ink">{{ s.line }}</span>
-                  </span>
-                  <ChevronRight :size="22" class="shrink-0 text-accent" aria-hidden="true" />
-                </button>
-              </li>
-            </ul>
-            <div class="mt-auto pt-6">
-              <p class="text-sm text-muted">{{ demo.disclaimer }}</p>
-              <button type="button" class="link text-base" @click="openHelp">About this data</button>
-            </div>
-          </div>
-          <div v-else-if="state.screen === 'send'" key="send" class="flex flex-1 flex-col">
-            <PhoneSendMoney standalone :screen="state.sub" @update:screen="onSub" @go="go('paused')" @other-story="otherStory" @home="home" />
+          <div v-if="state.screen === 'send'" key="send" class="flex flex-1 flex-col">
+            <PhoneSendMoney
+              standalone
+              :person="person"
+              :screen="state.sub"
+              @update:screen="onSub"
+              @go="(_, dest) => navigate({ ...fresh('paused'), dest })"
+              @pick="openPicker"
+              @restart="restart"
+            />
           </div>
           <div v-else-if="state.screen === 'paused'" key="paused" class="flex flex-1 flex-col">
-            <PhonePaused standalone :screen="state.sub" @update:screen="onSub" @next="navigate({ ...fresh('views'), view: 'tommy' })" @other-story="otherStory" @home="home" />
+            <PhonePaused
+              standalone
+              :person="person"
+              :screen="state.sub"
+              @update:screen="onSub"
+              @next="navigate({ ...fresh('views'), view: 'tommy' })"
+              @cancel-report="navigate({ ...fresh('views'), sub: 'reported' })"
+              @specialist="openSpecialist('linda')"
+              @restart="restart"
+            />
           </div>
           <div v-else-if="state.screen === 'views'" key="views" class="flex flex-1 flex-col">
             <PhoneTwoViews
               standalone
+              :person="person"
+              :dest="state.dest"
               :view="state.view"
               :answer="state.answer"
               :screen="state.sub"
               @update:view="onView"
               @update:answer="onAnswer"
               @update:screen="onSub"
-              @go="go('report')"
-              @other-story="otherStory"
-              @home="home"
+              @specialist="openSpecialist('tommy')"
+              @restart="restart"
             />
           </div>
-          <div v-else-if="state.screen === 'report'" key="report" class="flex flex-1 flex-col">
-            <PhoneReport standalone :screen="state.sub" @update:screen="onSub" @other-story="otherStory" @home="home" />
-          </div>
-          <div v-else-if="state.screen === 'legit'" key="legit" class="flex flex-1 flex-col">
-            <PhoneLegit standalone :stage="state.sub" @update:stage="onSub" @other-story="otherStory" @home="home" />
+          <div v-else-if="state.screen === 'custom'" key="custom" class="flex flex-1 flex-col">
+            <PhoneCustomPayment
+              :answer="state.knows"
+              :screen="state.sub === 'ask' ? 'form' : state.sub"
+              @update:screen="(v) => { if (state.sub !== 'ask' || v !== 'form') onSub(v) }"
+              @change-answer="navigate({ sub: 'ask' })"
+              @pick="openPicker"
+              @specialist="(amount) => openSpecialist('linda', amount)"
+              @restart="restart"
+            />
           </div>
         </Transition>
       </div>
@@ -289,6 +330,123 @@ function helpKeydown(e) {
       <p class="sr-only" aria-live="polite">{{ announcement }}</p>
 
       <Transition name="fade-slide">
+        <div v-if="pickerOpen" class="absolute inset-0 z-20 flex flex-col justify-end bg-[rgb(15_27_45/0.45)]" @click.self="closePicker()">
+          <div
+            ref="pickerSheet"
+            class="max-h-[90%] overflow-y-auto rounded-t-[28px] bg-white px-5 pb-6 pt-5 shadow-[0_-8px_30px_rgb(0_32_91/0.15)]"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="picker-title"
+            @keydown="pickerKeydown"
+          >
+            <div class="flex items-start justify-between gap-3">
+              <h2 id="picker-title" class="text-2xl">Send to</h2>
+              <button type="button" class="proto-icon-btn -mr-2" @click="closePicker()">
+                <X :size="22" aria-hidden="true" /><span>Close</span>
+              </button>
+            </div>
+            <ul class="mt-3 space-y-2" role="radiogroup" aria-labelledby="picker-title">
+              <li v-for="r in RECIPIENTS" :key="r.id">
+                <button
+                  type="button"
+                  role="radio"
+                  class="proto-pick-row"
+                  :aria-checked="state.screen !== 'custom' && state.recipient === r.id ? 'true' : 'false'"
+                  @click="chooseRecipient(r.id)"
+                >
+                  <PersonAvatar :name="r.name" :size="44" />
+                  <span class="min-w-0 flex-1 text-left">
+                    <strong class="block text-lg text-navy">{{ r.name }}</strong>
+                    <span class="block text-base text-muted">{{ r.relationship }}</span>
+                  </span>
+                  <span v-if="state.screen !== 'custom' && state.recipient === r.id" class="inline-flex items-center gap-1 text-sm font-semibold text-accent">
+                    <Check :size="18" aria-hidden="true" />Selected
+                  </span>
+                </button>
+              </li>
+              <li>
+                <button
+                  type="button"
+                  role="radio"
+                  class="proto-pick-row"
+                  :aria-checked="state.screen === 'custom' ? 'true' : 'false'"
+                  @click="chooseCustom"
+                >
+                  <span class="flex h-11 w-11 shrink-0 items-center justify-center rounded-full border-2 border-dashed border-accent text-accent" aria-hidden="true">
+                    <Plus :size="22" />
+                  </span>
+                  <span class="min-w-0 flex-1 text-left">
+                    <strong class="block text-lg text-navy">Custom recipient</strong>
+                    <span class="block text-base text-muted">Someone not in your list</span>
+                  </span>
+                </button>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </Transition>
+
+      <Transition name="fade-slide">
+        <div v-if="knowOpen" class="absolute inset-0 z-20 flex flex-col justify-end bg-[rgb(15_27_45/0.45)]" @click.self="closeKnow">
+          <div
+            ref="knowModal"
+            class="max-h-[90%] overflow-y-auto rounded-t-[28px] bg-white px-5 pb-6 pt-5 shadow-[0_-8px_30px_rgb(0_32_91/0.15)]"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="know-title"
+            aria-describedby="know-note"
+            @keydown="knowKeydown"
+          >
+            <div class="flex items-start justify-between gap-3">
+              <h2 id="know-title" class="text-2xl">Do you know this person?</h2>
+              <button type="button" class="proto-icon-btn -mr-2" @click="closeKnow">
+                <X :size="22" aria-hidden="true" /><span>Close</span>
+              </button>
+            </div>
+            <div class="mt-4 space-y-3">
+              <button
+                v-for="a in KNOW_ANSWERS"
+                :key="a.id"
+                type="button"
+                class="btn btn-phone text-lg"
+                :class="state.knows === a.id ? 'btn-primary' : 'btn-secondary'"
+                :aria-pressed="state.knows === a.id ? 'true' : 'false'"
+                @click="answerKnow(a.id)"
+              >
+                <Check v-if="state.knows === a.id" :size="20" aria-hidden="true" />{{ a.label }}
+              </button>
+            </div>
+            <p id="know-note" class="mt-4 text-base text-muted">Sound will never ask you to move money to protect it.</p>
+          </div>
+        </div>
+      </Transition>
+
+      <Transition name="fade-slide">
+        <div v-if="specialist" class="absolute inset-0 z-20 flex flex-col justify-end bg-[rgb(15_27_45/0.45)]" @click.self="closeSpecialist">
+          <div
+            ref="specialistSheet"
+            class="max-h-[90%] overflow-y-auto rounded-t-[28px] bg-white px-5 pb-6 pt-5 shadow-[0_-8px_30px_rgb(0_32_91/0.15)]"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="specialist-title"
+            @keydown="specialistKeydown"
+          >
+            <span class="flex h-12 w-12 items-center justify-center rounded-full bg-accent-soft"><Headset :size="26" class="text-accent" aria-hidden="true" /></span>
+            <h2 id="specialist-title" class="mt-3 text-2xl">{{ specialist === 'linda' ? 'A Sound specialist will call you' : 'A person will call you back' }}</h2>
+            <p v-if="specialist === 'linda'" class="mt-3 text-base">
+              A Sound fraud specialist, a real person, will call you back at {{ scam.member_phone_masked }}, your number on file. Your
+              {{ formatUsd(specialistAmount) }} stays paused while you wait.
+            </p>
+            <p v-else class="mt-3 text-base">
+              A Sound fraud specialist, a real person, will call you back on this number. You don’t need to do anything else right now.
+            </p>
+            <p class="mt-3 text-base text-muted">Sound will never ask for codes, passwords or account numbers.</p>
+            <button ref="specialistClose" type="button" class="btn btn-phone btn-primary mt-5 text-lg" @click="closeSpecialist">OK</button>
+          </div>
+        </div>
+      </Transition>
+
+      <Transition name="fade-slide">
         <div v-if="helpOpen" class="absolute inset-0 z-20 flex flex-col justify-end bg-[rgb(15_27_45/0.45)]" @click.self="closeHelp">
           <div
             ref="helpSheet"
@@ -306,11 +464,12 @@ function helpKeydown(e) {
             </div>
             <p class="mt-3 rounded-2xl bg-accent-soft p-4 text-base font-semibold text-navy">{{ demo.disclaimer }}</p>
             <p class="mt-3 text-base">{{ demo.source_note }}</p>
+            <p class="mt-3 text-base">Margaret and Daniel are fictional contacts made up for this prototype.</p>
             <p class="mt-3 text-base text-muted">
-              Pick a story, then use the buttons on each screen. Back steps through your path; Home returns to the stories.
+              Follow Linda’s payment using the buttons on each screen. Back steps through your path; Start over returns to the first screen.
             </p>
             <p class="mt-3 text-base text-muted">Concept prototype for HuskyHack 2026. Not an official Sound Credit Union product.</p>
-            <button type="button" class="btn btn-phone btn-secondary mt-5 text-lg" @click="closeHelp(); home()">Back to start</button>
+            <button type="button" class="btn btn-phone btn-secondary mt-5 text-lg" @click="closeHelp(); restart()">Start over</button>
           </div>
         </div>
       </Transition>

@@ -9,16 +9,22 @@ import StoryEndActions from '~/components/phone/StoryEndActions.vue'
 
 const props = defineProps({
   screen: { type: String, default: undefined }, // form | sent (bound only by /prototype)
+  // /prototype: the selected recipient (Tommy, Margaret or Daniel). Defaults to the walkthrough's Tommy.
+  person: { type: Object, default: null },
   // Standalone adds in-phone helper chips and end-of-story buttons.
   standalone: { type: Boolean, default: false }
 })
-const emit = defineEmits(['go', 'update:screen', 'other-story', 'home'])
+const emit = defineEmits(['go', 'pick', 'update:screen', 'restart'])
 
 const { scam } = demo
 const p = scam.payment
-const contact = scam.contact
-const tommyAccount = contact.verified_accounts[0]
-const callerAccount = p.recipient
+const contact = computed(() => props.person ?? scam.contact)
+const who = computed(() => contact.value.firstName ?? contact.value.name)
+const poss = computed(() => contact.value.possessive ?? 'his')
+const relationship = computed(() => contact.value.relationship ? capitalize(contact.value.relationship) : '')
+// Demo-fill options: the person's real account, and a different one (for Tommy, the caller's).
+const savedAccount = computed(() => contact.value.verified_accounts[0])
+const otherAccount = computed(() => (props.standalone && contact.value.differentAccount) || p.recipient)
 
 const routing = ref('')
 const account = ref('')
@@ -43,7 +49,7 @@ watch([routing, account], () => {
   waitTimer = setTimeout(() => {
     status.value = 'checking'
     checkTimer = setTimeout(() => {
-      status.value = matchAccount({ routing: routing.value, account: account.value }, contact)
+      status.value = matchAccount({ routing: routing.value, account: account.value }, contact.value)
     }, 650)
   }, 400)
 })
@@ -57,6 +63,13 @@ function fill(acct) {
   account.value = acct.account_number
 }
 defineExpose({ fill })
+
+// A different recipient starts a fresh form.
+watch(() => contact.value.name, () => {
+  routing.value = ''
+  account.value = ''
+  sent.value = false
+})
 
 function review() {
   if (!ready.value) {
@@ -72,7 +85,11 @@ function review() {
     return
   }
   // Not verified: the member can still go ahead, and the story moves to the pause.
-  emit('go', 2)
+  // Tell the app where the money would go (for the "Sent at your request" ending).
+  const typedOther = digitsOnly(routing.value) === otherAccount.value.routing_number && digitsOnly(account.value) === otherAccount.value.account_number
+  emit('go', 2, typedOther
+    ? { bank: otherAccount.value.bank, account_masked: otherAccount.value.account_masked }
+    : { account_masked: `••••${digitsOnly(account.value).slice(-4)}` })
 }
 
 // Standalone (/prototype) on small screens: bring the check's result into view.
@@ -86,8 +103,8 @@ const mismatch = computed(() => status.value === 'not_verified')
 const fieldClass = computed(() => (mismatch.value ? '!border-alert pr-12' : ''))
 const selectedKind = computed(() => {
   if (!ready.value) return null
-  if (routing.value === tommyAccount.routing_number && account.value === tommyAccount.account_number) return 'saved'
-  if (routing.value === callerAccount.routing_number && account.value === callerAccount.account_number) return 'caller'
+  if (routing.value === savedAccount.value.routing_number && account.value === savedAccount.value.account_number) return 'saved'
+  if (routing.value === otherAccount.value.routing_number && account.value === otherAccount.value.account_number) return 'caller'
   return 'custom'
 })
 </script>
@@ -96,10 +113,10 @@ const selectedKind = computed(() => {
   <Transition name="fade-slide" mode="out-in">
     <div v-if="sent" key="sent" class="flex flex-1 flex-col items-center justify-center text-center">
       <CircleCheck :size="64" class="text-ok" aria-hidden="true" />
-      <p class="mt-4 text-2xl font-bold text-navy" data-screen-title>Sent to {{ contact.name }}</p>
-      <p class="mt-2 text-lg text-muted">{{ formatUsd(p.amount) }} is on its way to an account verified as {{ contact.name }}’s. No extra steps.</p>
+      <p class="mt-4 text-2xl font-bold text-navy" data-screen-title>Sent to {{ who }}</p>
+      <p class="mt-2 text-lg text-muted">{{ formatUsd(p.amount) }} is on its way to an account verified as {{ who }}’s. No extra steps.</p>
       <button type="button" class="link mt-6" @click="sent = false">Back to the form</button>
-      <StoryEndActions v-if="standalone" @other="emit('other-story')" @home="emit('home')" />
+      <StoryEndActions v-if="standalone" @restart="emit('restart')" />
     </div>
 
     <form v-else key="form" class="flex flex-1 flex-col" novalidate @submit.prevent="review">
@@ -107,9 +124,13 @@ const selectedKind = computed(() => {
 
       <div class="mt-4 flex items-center gap-3 rounded-2xl border-2 border-line p-3">
         <PersonAvatar :name="contact.name" :size="44" />
-        <span class="text-lg">
-          <span class="text-muted">To:</span> <strong class="text-navy">{{ contact.name }}</strong> · {{ capitalize(contact.relationship) }}
+        <span class="text-lg" :class="standalone ? 'min-w-0 flex-1' : ''">
+          <span class="text-muted">To:</span> <strong class="text-navy">{{ contact.name }}</strong> · {{ relationship }}
         </span>
+        <!-- /prototype: choose who to pay. The To card shows only name and relationship. -->
+        <button v-if="standalone" type="button" class="link shrink-0 text-base" aria-haspopup="dialog" @click="emit('pick')">
+          Change<span class="sr-only"> recipient</span>
+        </button>
       </div>
 
       <label for="amount" class="mt-4 text-base font-semibold text-ink">Amount</label>
@@ -171,12 +192,12 @@ const selectedKind = computed(() => {
             class="demo-account-option"
             :class="selectedKind === 'saved' ? 'is-selected is-verified' : ''"
             :aria-pressed="selectedKind === 'saved'"
-            @click="fill(tommyAccount)"
+            @click="fill(savedAccount)"
           >
             <PersonAvatar :name="contact.name" :size="36" />
             <span class="min-w-0 flex-1 text-left">
-              <strong class="block text-navy">{{ contact.name }}’s saved account</strong>
-              <span class="block truncate text-sm text-muted">{{ tommyAccount.bank }} · {{ tommyAccount.account_masked }}</span>
+              <strong class="block text-navy">{{ standalone ? `Try ${who}’s real account` : `${who}’s saved account` }}</strong>
+              <span class="block truncate text-sm text-muted">{{ standalone ? savedAccount.account_masked : `${savedAccount.bank} · ${savedAccount.account_masked}` }}</span>
             </span>
             <CircleCheck v-if="selectedKind === 'saved'" :size="20" class="shrink-0 text-ok" aria-hidden="true" />
           </button>
@@ -185,14 +206,14 @@ const selectedKind = computed(() => {
             class="demo-account-option"
             :class="selectedKind === 'caller' ? 'is-selected is-mismatch' : ''"
             :aria-pressed="selectedKind === 'caller'"
-            @click="fill(callerAccount)"
+            @click="fill(otherAccount)"
           >
             <span class="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-alert-soft text-alert" aria-hidden="true">
               <TriangleAlert :size="20" />
             </span>
             <span class="min-w-0 flex-1 text-left">
-              <strong class="block text-navy">Number the caller gave</strong>
-              <span class="block truncate text-sm text-muted">{{ callerAccount.bank }} · {{ callerAccount.account_masked }}</span>
+              <strong class="block text-navy">{{ standalone ? otherAccount.label : 'Number the caller gave' }}</strong>
+              <span class="block truncate text-sm text-muted">{{ standalone ? otherAccount.account_masked : `${otherAccount.bank} · ${otherAccount.account_masked}` }}</span>
             </span>
             <CircleCheck v-if="selectedKind === 'caller'" :size="20" class="shrink-0 text-alert" aria-hidden="true" />
           </button>
@@ -203,7 +224,7 @@ const selectedKind = computed(() => {
         <Transition name="fade-slide" mode="out-in">
           <div v-if="status === 'idle'" key="idle" class="flex items-start gap-3 rounded-2xl bg-page p-4 text-base">
             <ShieldCheck :size="22" class="mt-0.5 shrink-0 text-accent" aria-hidden="true" />
-            <span>We’ll check this account belongs to {{ contact.name }}.</span>
+            <span>We’ll check this account belongs to {{ who }}.</span>
           </div>
           <div v-else-if="status === 'checking'" key="checking" class="flex items-center gap-3 rounded-2xl bg-page p-4 text-base">
             <LoaderCircle :size="22" class="shrink-0 animate-spin text-accent" aria-hidden="true" />
@@ -211,17 +232,17 @@ const selectedKind = computed(() => {
           </div>
           <div v-else-if="status === 'verified'" key="ok" class="flex items-start gap-3 rounded-2xl border-2 border-ok bg-ok-soft p-4 text-base">
             <CircleCheck :size="22" class="mt-0.5 shrink-0 text-ok" aria-hidden="true" />
-            <span><strong class="text-ok">Account verified as {{ contact.name }}’s.</strong> The payment can go straight through.</span>
+            <span><strong class="text-ok">Account verified as {{ who }}’s.</strong> The payment can go straight through.</span>
           </div>
           <div v-else key="bad" class="rounded-2xl border-2 border-alert bg-alert-soft p-4 text-base">
             <p class="flex items-start gap-3">
               <TriangleAlert :size="22" class="mt-0.5 shrink-0 text-alert" aria-hidden="true" />
               <span>
-                <strong class="text-alert">This account isn’t one of {{ contact.name }}’s verified accounts.</strong>
-                The numbers you entered don’t match any account {{ contact.name }} has verified.
+                <strong class="text-alert">This account isn’t one of {{ who }}’s verified accounts.</strong>
+                The numbers you entered don’t match any account {{ who }} has verified.
               </span>
             </p>
-            <p class="mt-2 pl-[34px]">If you continue, we’ll pause it for up to {{ scam.hold_hours }} hours and ask {{ contact.name }} on his saved phone.</p>
+            <p class="mt-2 pl-[34px]">If you continue, we’ll pause it for up to {{ scam.hold_hours }} hours and ask {{ who }} on {{ poss }} saved phone.</p>
           </div>
         </Transition>
       </div>

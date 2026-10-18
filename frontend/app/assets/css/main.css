@@ -138,13 +138,6 @@
   .proto-app-title {
     @apply px-3 font-display text-xl text-navy;
   }
-  .proto-story {
-    @apply flex w-full items-center gap-4 rounded-2xl border-2 border-line bg-white p-4 text-left;
-    min-height: 44px;
-  }
-  .proto-story:active {
-    @apply border-accent bg-accent-soft;
-  }
   .demo-account-option {
     @apply flex min-h-[64px] w-full items-center gap-3 rounded-xl border-2 border-line bg-white px-3 py-2 text-base;
   }
@@ -289,4 +282,20 @@ body.proto-page {
   .phone-switch-arrow {
     animation: none;
   }
+}
+/* /prototype recipient picker rows (44px+ targets). */
+.proto-pick-row {
+  display: flex;
+  width: 100%;
+  min-height: 56px;
+  align-items: center;
+  gap: 0.75rem;
+  border: 2px solid var(--color-line);
+  border-radius: 1rem;
+  background: white;
+  padding: 0.5rem 0.75rem;
+}
+.proto-pick-row[aria-checked="true"] {
+  border-color: var(--color-accent);
+  background: var(--color-accent-soft);
 }

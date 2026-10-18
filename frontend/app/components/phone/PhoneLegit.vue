@@ -1,17 +1,15 @@
 <script setup>
 // Step 4 phone: the legitimate look-alike (M1037 paying Uma's new account).
-// Shared by the walkthrough (StepLegit) and the standalone /prototype app.
+// Used by the walkthrough (StepLegit).
 // `stage` is owned by the parent: the walkthrough's "Show Uma's answer" button sets it.
-import { CircleCheck, MessageCircle, Send } from 'lucide-vue-next'
+import { CircleCheck, Send } from 'lucide-vue-next'
 import demo from '~/data/demo.json'
 import { capitalize, formatUsd } from '~/utils/format'
-import StoryEndActions from '~/components/phone/StoryEndActions.vue'
 
 defineProps({
-  stage: { type: String, default: 'paused' }, // paused | answered | sent
-  standalone: { type: Boolean, default: false }
+  stage: { type: String, default: 'paused' } // paused | answered | sent
 })
-const emit = defineEmits(['update:stage', 'other-story', 'home'])
+const emit = defineEmits(['update:stage'])
 
 const { lookalike: l } = demo
 const p = l.payment
@@ -38,10 +36,6 @@ const contact = l.contact
         <div class="flex justify-between"><dt class="text-muted">Amount</dt><dd class="font-bold">{{ formatUsd(p.amount) }}</dd></div>
         <div class="flex justify-between"><dt class="text-muted">Account</dt><dd class="font-bold">{{ p.recipient.account_masked }}</dd></div>
       </dl>
-      <!-- Standalone only: the walkthrough has this as a button under the phone. -->
-      <button v-if="standalone" type="button" class="proto-chip mt-4 self-start" @click="emit('update:stage', 'answered')">
-        <MessageCircle :size="18" aria-hidden="true" />Show {{ contact.name }}’s answer
-      </button>
     </div>
     <div v-else-if="stage === 'answered'" key="answered" class="flex flex-1 flex-col">
       <div class="mt-6 flex items-center gap-4">
@@ -62,8 +56,7 @@ const contact = l.contact
       <CircleCheck :size="64" class="text-ok" aria-hidden="true" />
       <p class="mt-4 text-2xl font-bold text-navy" data-screen-title>Sent to {{ contact.name }}</p>
       <p class="mt-2 text-lg text-muted">About 3 minutes from start to finish.</p>
-      <button v-if="!standalone" type="button" class="link mt-6" @click="emit('update:stage', 'paused')">Start over</button>
-      <StoryEndActions v-else @other="emit('other-story')" @home="emit('home')" />
+      <button type="button" class="link mt-6" @click="emit('update:stage', 'paused')">Start over</button>
     </div>
   </Transition>
 </template>

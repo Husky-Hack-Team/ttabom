@@ -49,7 +49,7 @@ const answer = ref(null) // null | yes | no
       </div>
 
       <PhoneFrame :label="view === 'tommy' ? `${contact.name}'s phone` : `${scam.member_name}'s phone`" :time="p.time_label.replace(/ [AP]M/, '')">
-        <PhoneTwoViews v-model:view="view" v-model:answer="answer" @go="emit('go', $event)" />
+        <PhoneTwoViews v-model:view="view" v-model:answer="answer" @report-after-send="emit('go', 5)" />
       </PhoneFrame>
     </div>
     <EmployeeCase :answer="answer" />
