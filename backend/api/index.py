@@ -3,8 +3,10 @@ from decimal import Decimal
 from functools import lru_cache
 
 from dotenv import load_dotenv
-from fastapi import APIRouter, FastAPI, HTTPException
+from fastapi import APIRouter, FastAPI, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
+from postgrest.exceptions import APIError
 from pydantic import BaseModel, Field, field_validator
 from supabase import Client, create_client
 
@@ -26,12 +28,19 @@ app.add_middleware(
 )
 
 
+@app.exception_handler(APIError)
+def supabase_error(request: Request, exc: APIError):
+    # Surface Supabase errors (e.g. missing table) instead of a bare 500.
+    return JSONResponse(status_code=502, content={"detail": f"Database error: {exc.message}"})
+
+
 @lru_cache(maxsize=1)
 def get_supabase() -> Client:
     # Created lazily so /api/health works without credentials. The client talks
     # to Supabase over HTTP, so there is no persistent DB connection to manage.
-    url = os.getenv("SUPABASE_URL")
-    key = os.getenv("SUPABASE_SERVICE_ROLE_KEY")
+    # Accept the REST endpoint too (".../rest/v1/"); the client appends that itself.
+    url = os.getenv("SUPABASE_URL", "").strip().rstrip("/").removesuffix("/rest/v1")
+    key = os.getenv("SUPABASE_SERVICE_ROLE_KEY", "").strip()
     if not url or not key:
         raise HTTPException(
             status_code=500,

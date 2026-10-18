@@ -9,7 +9,6 @@ ttabom/
 ├── backend/                  # Python + FastAPI (Vercel project, preset "Other")
 │   ├── api/index.py          # FastAPI app; every route is under /api
 │   ├── requirements.txt      # Deps Vercel installs (fastapi, supabase, python-dotenv)
-│   ├── vercel.json           # Rewrites all paths to /api/index
 │   ├── schema.sql            # transactions table + seed rows (run in Supabase)
 │   └── .env.example          # Backend env var template
 ├── frontend/                 # Nuxt 4 + Vue + Tailwind CSS v4 (Vercel project, preset "Nuxt")
@@ -45,7 +44,7 @@ Requirements: Python 3.12+, Node.js 22+ (npm 11.21+ recommended; see Troubleshoo
    pip install fastapi uvicorn supabase python-dotenv
    cp .env.example .env
    ```
-   Fill in `backend/.env` with the values from Supabase **Project Settings → API**: the Project URL goes in `SUPABASE_URL` and the `service_role` key goes in `SUPABASE_SERVICE_ROLE_KEY`. The service role key is a secret. Keep it in the backend only and never commit it.
+   Fill in `backend/.env` with the values from Supabase **Project Settings → API**: the Project URL (just `https://<ref>.supabase.co`, without `/rest/v1/`) goes in `SUPABASE_URL` and the `service_role` key goes in `SUPABASE_SERVICE_ROLE_KEY`. The service role key is a secret. Keep it in the backend only and never commit it.
 3. **Frontend.**
    ```sh
    cd frontend
@@ -105,9 +104,10 @@ Go back to the backend project, set `FRONTEND_URL` to the frontend URL, and **re
 
 ## Troubleshooting
 
+- **Every backend route returns `{"detail":"Not Found"}` on Vercel**: don't add a `vercel.json` with a catch-all rewrite to the backend. Vercel detects FastAPI from `api/index.py` and sends every path to the app on its own. A rewrite to `/api/index` makes the app see `/api/index` for every request.
+- **`Database error: Could not find the table 'public.transactions'`**: run `backend/schema.sql` in the Supabase SQL Editor of the same project that `SUPABASE_URL` points to.
 - **CORS error in the browser console** ("blocked by CORS policy"): the backend allows only `http://localhost:3000` plus `FRONTEND_URL`. On Vercel, `FRONTEND_URL` must match the frontend's origin exactly: `https://`, no trailing slash, no path. Preview deployments get different URLs and won't match unless you set `FRONTEND_URL` for them too. Locally, the frontend has to run on port 3000.
 - **"Server is missing SUPABASE_URL or SUPABASE_SERVICE_ROLE_KEY"**: locally, check that `backend/.env` exists and is filled in, and restart uvicorn. On Vercel, add the variables in **Project Settings → Environment Variables** for the right environment (Production/Preview), then redeploy.
 - **Frontend still calls `localhost:8000` in production**: `NUXT_PUBLIC_API_BASE` isn't set in the frontend project, or you set it without redeploying.
 - **Changed an env var and nothing happened**: Vercel applies env var changes only to new deployments. Open **Deployments**, then **⋯ → Redeploy** on the latest one.
-- **`relation "public.transactions" does not exist`**: `backend/schema.sql` hasn't been run in Supabase yet.
 - **`npm install` crashes with `Cannot read properties of null (reading 'edgesOut')`**: this is a bug in older npm 11 releases. Run `npx npm@11.21.1 install` instead, or update npm.
