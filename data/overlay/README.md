@@ -15,6 +15,7 @@ analysis/.venv/bin/python analysis/overlay.py
 | `contacts_overlay.csv` | saved contact | member, contact_id, name, relationship, masked phone, date the phone was added, verified accounts (`;`-separated recipient_ids) |
 | `stated_recipient.csv` | New-recipient or cash payment | payment_id, member, recipient, stated_type (`saved_contact` / `new_payee` / `myself`), contact_id |
 | `recipients_overlay.csv` | recipient | member, recipient_id, bank (`Sound` or a fictional external bank), masked account, whether the account predates the data window, owning contact |
+| `recipient_numbers.csv` | recipient | **synthetic** 9-digit routing number (valid ABA checksum, one per bank) and full account number ending in the overlay's masked last 4. Built by `scripts/build_demo_data.py` (seed 2026) only if missing |
 | `member_channels.csv` | member | the member's own masked phone and email, the date each was added, and the masked value each changes to if a Phone Change or Email Change event happens |
 
 ## Assumptions
@@ -33,6 +34,9 @@ analysis/.venv/bin/python analysis/overlay.py
 9. Each contact's verified accounts are the member's most-paid P2P recipients that predate the window, one per contact, in order. A contact may have no verified account at all.
 10. An external account counts as verified for a contact only if it is in that contact's list, is `Existing`, and has `recipient_age_days ≥ 30` on the payment under test. New recipients are never pre-verified. A Sound account matches by owner (`owner_contact_id`), even when it's new (resolution 3).
 11. **R1001-11 (Linda's wire destination) is ••••8723 at Cascade Federal Bank.** This is the account Tommy is shown.
+
+### Routing and account numbers
+The HuskyHack data has no account or routing numbers. `recipient_numbers.csv` makes them up for the demo page: one synthetic routing number per bank name, and an account number made of 6 random digits followed by the last 4 already shown in `recipients_overlay.csv`. None of them are real; they exist so the demo can check full typed numbers rather than last 4.
 
 ### The member's own phone and email
 12. Each member's phone and email were added 200–3,000 days before the window.

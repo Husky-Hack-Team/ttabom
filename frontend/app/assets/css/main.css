@@ -1,9 +1,106 @@
 @import "tailwindcss";
 
-/* Demo and replay screens: Apple-style system type, 18px body minimum. */
-.demo-surface {
-  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", system-ui, sans-serif;
-  font-size: 1.125rem;
-  line-height: 1.6;
-  -webkit-font-smoothing: antialiased;
+/* Design tokens. Every text/background pair used on the page passes WCAG AA. */
+@theme {
+  --color-navy: #00205b;
+  --color-accent: #2b6199;
+  --color-page: #f2fafc;
+  --color-ink: #0f1b2d;
+  --color-muted: #4a5a70;
+  --color-line: #d3e1e8;
+  --color-ok: #12805c;
+  --color-ok-soft: #f1f9f5;
+  --color-alert: #b3202a;
+  --color-alert-soft: #fdf1f1;
+  --color-accent-soft: #eaf3fa;
+  --font-sans: "Montserrat", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-display: "Patua One", Georgia, serif;
+  --radius-card: 22px;
+  --shadow-card: 0 10px 30px rgb(0 32 91 / 0.08);
+}
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+  body {
+    @apply bg-page text-ink font-sans antialiased;
+    font-size: 18px;
+    font-weight: 500;
+    line-height: 1.6;
+  }
+  h1, h2, h3 {
+    @apply text-navy;
+    font-weight: 700;
+    line-height: 1.2;
+  }
+  :focus-visible {
+    outline: 3px solid var(--color-accent);
+    outline-offset: 3px;
+    border-radius: 6px;
+  }
+}
+
+@layer components {
+  .card {
+    @apply bg-white;
+    border-radius: var(--radius-card);
+    box-shadow: var(--shadow-card);
+  }
+  .btn {
+    @apply inline-flex items-center justify-center gap-2 rounded-full px-6 font-semibold transition-colors;
+    min-height: 48px;
+  }
+  .btn-phone {
+    min-height: 56px;
+    @apply w-full;
+  }
+  .btn-primary {
+    @apply bg-navy text-white hover:bg-[#0a2f78];
+  }
+  .btn-secondary {
+    @apply border-2 border-accent bg-white text-accent hover:bg-accent-soft;
+  }
+  .btn-danger {
+    @apply bg-alert text-white hover:bg-[#961a23];
+  }
+  .link {
+    @apply font-semibold text-accent underline decoration-2 underline-offset-4 hover:text-navy;
+  }
+  .chip {
+    @apply inline-flex items-center gap-1.5 rounded-full border border-line bg-white px-3 py-1 text-base text-ink;
+  }
+  .field {
+    @apply block w-full border-2 border-line bg-white px-4 text-lg text-ink tabular-nums;
+    height: 56px;
+    border-radius: 14px;
+  }
+  .field:focus-visible {
+    @apply border-accent;
+    outline: 3px solid rgb(43 97 153 / 0.35);
+    outline-offset: 0;
+  }
+}
+
+/* Fade + 8px slide for steps and status changes. */
+.fade-slide-enter-active,
+.fade-slide-leave-active {
+  transition: opacity 200ms ease, transform 200ms ease;
+}
+.fade-slide-enter-from,
+.fade-slide-leave-to {
+  opacity: 0;
+  transform: translateY(8px);
+}
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  .fade-slide-enter-active,
+  .fade-slide-leave-active {
+    transition: none;
+  }
+  .animate-spin {
+    animation: none;
+  }
 }

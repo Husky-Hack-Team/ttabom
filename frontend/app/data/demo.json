@@ -1,0 +1,226 @@
+{
+  "generated_by": "scripts/build_demo_data.py",
+  "source_note": "Synthetic data from the HuskyHack 2026 starter kit. Names, banks and account numbers come from our documented overlay on top of the dataset's recipient IDs.",
+  "disclaimer": "Synthetic data only. Not a measure of real fraud rates.",
+  "scam": {
+    "member_id": "M1001",
+    "member_name": "Linda",
+    "member_phone_masked": "(•••) •••-2696",
+    "stated_recipient": "saved_contact",
+    "payment": {
+      "payment_id": "P1001-003",
+      "rail": "Wire",
+      "amount": 8500.0,
+      "channel": "Branch",
+      "timestamp": "2026-10-20T14:11:00",
+      "date_label": "Oct 20, 2026",
+      "time_label": "2:11 PM",
+      "recipient": {
+        "recipient_id": "R1001-11",
+        "bank": "Cascade Federal Bank",
+        "account_masked": "••••8723",
+        "routing_number": "096786367",
+        "account_number": "1086228723",
+        "owner_contact_id": null
+      },
+      "recipient_status": "New",
+      "recipient_age_days": 0,
+      "recipient_added_label": "2:04 PM",
+      "days_since_last_same_rail": 2411,
+      "years_since_last_same_rail": 6,
+      "amount_vs_member_baseline": "Significantly Above Typical",
+      "amount_to_baseline_ratio": 4.77,
+      "balance_before": 47494.18,
+      "profile_change_recent": "No",
+      "password_reset_recent": "No"
+    },
+    "contact": {
+      "contact_id": "C1001-1",
+      "name": "Tommy",
+      "relationship": "grandson",
+      "phone_masked": "(•••) •••-4417",
+      "phone_on_file_since": "2026-02-22",
+      "phone_on_file_since_label": "Feb 2026",
+      "phone_on_file_days": 240,
+      "phone_eligible": true,
+      "verified_accounts": [
+        {
+          "recipient_id": "R1001-05",
+          "bank": "Cascade Federal Bank",
+          "account_masked": "••••3658",
+          "routing_number": "096786367",
+          "account_number": "9027753658",
+          "owner_contact_id": "C1001-1",
+          "age_days": 686,
+          "last_paid_label": "Sep 8, 2026"
+        }
+      ]
+    },
+    "key": {
+      "scenario_type": "Family Emergency",
+      "scenario_subtype": "Grandparent / fake attorney",
+      "is_legitimate_lookalike": false,
+      "journey_outcome": "Partial Loss",
+      "journey_summary": "Linda overrode a hold on a $8,500 wire (the member's right). Next-day cash request for 'bail' was stopped; recall requested on the wire.",
+      "dollars_attempted": 12750.0,
+      "dollars_sent": 8500.0,
+      "dollars_prevented": 4250.0,
+      "dollars_recovered": 0.0
+    },
+    "without_check": [
+      {
+        "event_type": "Payment Initiated",
+        "date_label": "Oct 20, 2026",
+        "time_label": "2:11 PM",
+        "member_response": null,
+        "payment_status": "Pending",
+        "note": null
+      },
+      {
+        "event_type": "Confirmation Requested",
+        "date_label": "Oct 20, 2026",
+        "time_label": "2:14 PM",
+        "member_response": "Confirmed Intended",
+        "payment_status": "Pending",
+        "note": "Member insisted; told by 'attorney' not to discuss"
+      },
+      {
+        "event_type": "Payment Held",
+        "date_label": "Oct 20, 2026",
+        "time_label": "2:21 PM",
+        "member_response": null,
+        "payment_status": "Held",
+        "note": null
+      },
+      {
+        "event_type": "Employee Outreach",
+        "date_label": "Oct 20, 2026",
+        "time_label": "3:42 PM",
+        "member_response": "Confirmed Intended",
+        "payment_status": "Held",
+        "note": null
+      },
+      {
+        "event_type": "Payment Released",
+        "date_label": "Oct 20, 2026",
+        "time_label": "5:04 PM",
+        "member_response": null,
+        "payment_status": "Completed",
+        "note": null
+      },
+      {
+        "event_type": "Recovery Request",
+        "date_label": "Oct 21, 2026",
+        "time_label": "5:38 PM",
+        "member_response": null,
+        "payment_status": "Completed",
+        "note": null
+      },
+      {
+        "event_type": "Recovery Unsuccessful",
+        "date_label": "Oct 22, 2026",
+        "time_label": "7:18 PM",
+        "member_response": null,
+        "payment_status": "Completed",
+        "note": null
+      }
+    ],
+    "hold_hours": 4,
+    "case_number": "CASE-1001-003",
+    "caller_account_owner": null
+  },
+  "lookalike": {
+    "member_id": "M1037",
+    "member_name": "M1037",
+    "member_phone_masked": "(•••) •••-8874",
+    "stated_recipient": "saved_contact",
+    "payment": {
+      "payment_id": "P1037-002",
+      "rail": "P2P",
+      "amount": 1188.37,
+      "channel": "Mobile",
+      "timestamp": "2026-10-06T09:35:00",
+      "date_label": "Oct 6, 2026",
+      "time_label": "9:35 AM",
+      "recipient": {
+        "recipient_id": "R1037-09",
+        "bank": "Summit Online Bank",
+        "account_masked": "••••4121",
+        "routing_number": "049382734",
+        "account_number": "4226114121",
+        "owner_contact_id": null
+      },
+      "recipient_status": "New",
+      "recipient_age_days": 0,
+      "recipient_added_label": "9:33 AM",
+      "days_since_last_same_rail": 46,
+      "years_since_last_same_rail": 0,
+      "amount_vs_member_baseline": "Typical",
+      "amount_to_baseline_ratio": 1.14,
+      "balance_before": 20382.16,
+      "profile_change_recent": "No",
+      "password_reset_recent": "No"
+    },
+    "contact": {
+      "contact_id": "C1037-1",
+      "name": "Uma",
+      "relationship": "sibling",
+      "phone_masked": "(•••) •••-5948",
+      "phone_on_file_since": "2025-06-14",
+      "phone_on_file_since_label": "Jun 2025",
+      "phone_on_file_days": 479,
+      "phone_eligible": true,
+      "verified_accounts": [
+        {
+          "recipient_id": "R1037-01",
+          "bank": "Cascade Federal Bank",
+          "account_masked": "••••6130",
+          "routing_number": "096786367",
+          "account_number": "5879886130",
+          "owner_contact_id": "C1037-1"
+        }
+      ]
+    },
+    "key": {
+      "scenario_type": "Normal Activity",
+      "scenario_subtype": "Helping a real family member",
+      "is_legitimate_lookalike": true,
+      "journey_outcome": "Legitimate - Confirmation Step",
+      "journey_summary": "Legitimate: urgent $1,188 P2P to a grandchild's new account for college housing. Same shape as a family-emergency scam.",
+      "dollars_attempted": 0.0,
+      "dollars_sent": 0.0,
+      "dollars_prevented": 0.0,
+      "dollars_recovered": 0.0
+    },
+    "actual": {
+      "timeline": [
+        {
+          "event_type": "Payment Initiated",
+          "date_label": "Oct 6, 2026",
+          "time_label": "9:35 AM",
+          "member_response": null,
+          "payment_status": "Pending",
+          "note": null
+        },
+        {
+          "event_type": "Warning Displayed",
+          "date_label": "Oct 6, 2026",
+          "time_label": "9:35 AM",
+          "member_response": "Confirmed Intended",
+          "payment_status": "Pending",
+          "note": "Generic new-recipient warning"
+        },
+        {
+          "event_type": "Payment Completed",
+          "date_label": "Oct 6, 2026",
+          "time_label": "9:37 AM",
+          "member_response": null,
+          "payment_status": "Completed",
+          "note": null
+        }
+      ],
+      "minutes_to_complete": 2,
+      "completed_label": "9:37 AM"
+    }
+  }
+}

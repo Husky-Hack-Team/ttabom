@@ -1,218 +1,121 @@
 <script setup>
-const config = useRuntimeConfig()
-const apiBase = config.public.apiBase.replace(/\/+$/, '')
+import { ArrowLeft, ArrowRight, ShieldCheck } from 'lucide-vue-next'
 
-useHead({ title: 'ttabom · Dashboard', htmlAttrs: { lang: 'en' } })
+const STEPS = [
+  { n: 1, label: 'Signal', component: resolveComponent('StepSignal') },
+  { n: 2, label: 'Intervention', component: resolveComponent('StepIntervention') },
+  { n: 3, label: 'Two views', component: resolveComponent('StepTwoViews') },
+  { n: 4, label: 'Legit path', component: resolveComponent('StepLegit') },
+  { n: 5, label: 'Report', component: resolveComponent('StepReport') },
+  { n: 6, label: 'Pilot', component: resolveComponent('StepPilot') }
+]
 
-const usd = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' })
-const dateFormat = new Intl.DateTimeFormat('en-US', { dateStyle: 'medium', timeStyle: 'short' })
-const formatUsd = (value) => usd.format(Number(value))
-const formatDate = (value) => dateFormat.format(new Date(value))
+const step = ref(1)
+const walkthrough = ref(null)
+const current = computed(() => STEPS[step.value - 1])
 
-const balance = ref(null)
-const transactions = ref([])
-const loading = ref(true)
-const loadError = ref('')
-
-async function loadData() {
-  loading.value = true
-  loadError.value = ''
-  try {
-    const [balanceRes, txRes] = await Promise.all([
-      $fetch(`${apiBase}/api/balance`),
-      $fetch(`${apiBase}/api/transactions`)
-    ])
-    balance.value = balanceRes.balance
-    transactions.value = txRes
-  } catch (err) {
-    loadError.value = err?.data?.detail || 'Could not load your account. Is the API running?'
-  } finally {
-    loading.value = false
-  }
+function go(n, { scroll = true } = {}) {
+  step.value = Math.min(6, Math.max(1, n))
+  if (import.meta.client) history.replaceState(null, '', `#step-${step.value}`)
+  if (!scroll) return
+  nextTick(() => {
+    walkthrough.value?.scrollIntoView({ block: 'start' })
+    // Move focus to the new step's heading for keyboard and screen-reader users.
+    setTimeout(() => document.getElementById(`step-${step.value}-title`)?.focus({ preventScroll: true }), 220)
+  })
 }
 
-onMounted(loadData)
-
-const form = reactive({ description: '', amount: '', direction: 'out' })
-const errors = reactive({ description: '', amount: '' })
-const submitError = ref('')
-const submitStatus = ref('')
-const submitting = ref(false)
-
-function validate() {
-  errors.description = form.description.trim() ? '' : 'Enter a description.'
-  const amount = Number(form.amount)
-  if (form.amount === '' || Number.isNaN(amount)) {
-    errors.amount = 'Enter an amount.'
-  } else if (amount <= 0) {
-    errors.amount = 'Amount must be greater than zero.'
-  } else if (!/^\d+(\.\d{1,2})?$/.test(String(form.amount))) {
-    errors.amount = 'Use at most two decimal places.'
-  } else {
-    errors.amount = ''
-  }
-  return !errors.description && !errors.amount
+function onKey(e) {
+  if (e.altKey || e.ctrlKey || e.metaKey || e.shiftKey) return
+  const t = e.target
+  if (t instanceof HTMLElement && (t.isContentEditable || ['INPUT', 'TEXTAREA', 'SELECT'].includes(t.tagName))) return
+  if (e.key === 'ArrowRight' && step.value < 6) go(step.value + 1)
+  if (e.key === 'ArrowLeft' && step.value > 1) go(step.value - 1)
 }
 
-async function submit() {
-  submitError.value = ''
-  submitStatus.value = ''
-  if (!validate()) return
-
-  const amount = Number(form.amount) * (form.direction === 'out' ? -1 : 1)
-  submitting.value = true
-  try {
-    await $fetch(`${apiBase}/api/transactions`, {
-      method: 'POST',
-      body: { description: form.description.trim(), amount }
-    })
-    form.description = ''
-    form.amount = ''
-    submitStatus.value = 'Transaction added.'
-    await loadData()
-  } catch (err) {
-    const detail = err?.data?.detail
-    submitError.value = Array.isArray(detail)
-      ? detail.map((d) => d.msg).join(' ')
-      : detail || 'Could not add the transaction. Please try again.'
-  } finally {
-    submitting.value = false
-  }
-}
-
-const inputClass =
-  'mt-1 block w-full rounded-lg border border-slate-400 bg-white px-3 py-2 text-base text-slate-900 ' +
-  'focus:outline-none focus-visible:ring-4 focus-visible:ring-blue-600/40 focus-visible:border-blue-700 ' +
-  'aria-[invalid=true]:border-red-700'
+onMounted(() => {
+  const m = location.hash.match(/^#step-([1-6])$/)
+  if (m) go(Number(m[1]))
+  window.addEventListener('keydown', onKey)
+})
+onBeforeUnmount(() => window.removeEventListener('keydown', onKey))
 </script>
 
 <template>
-  <div class="min-h-screen bg-slate-100 text-slate-900">
-    <header class="bg-blue-900 text-white">
-      <div class="mx-auto flex max-w-3xl items-center justify-between px-4 py-4">
-        <p class="text-lg font-semibold">ttabom</p>
-        <NuxtLink to="/demo" class="rounded font-medium underline underline-offset-4 focus:outline-none focus-visible:ring-4 focus-visible:ring-white/60">
-          Demo mode
-        </NuxtLink>
+  <div class="min-h-screen bg-page">
+    <a href="#walkthrough" class="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-50 focus:rounded-lg focus:bg-white focus:px-4 focus:py-2">
+      Skip to the walkthrough
+    </a>
+
+    <header class="bg-navy text-white">
+      <div class="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-x-4 gap-y-2 px-4 py-3 sm:px-8">
+        <p class="flex items-center gap-2 whitespace-nowrap font-display text-2xl tracking-wide">
+          <ShieldCheck :size="26" aria-hidden="true" />Demo Prototype
+        </p>
+        <p class="whitespace-nowrap rounded-full border border-white/40 px-3 py-1 text-sm font-semibold sm:text-base">Demo prototype · synthetic data</p>
       </div>
     </header>
 
-    <main class="mx-auto max-w-3xl space-y-6 px-4 py-6">
-      <h1 class="sr-only">Account dashboard</h1>
-
-      <p v-if="loadError" role="alert" class="rounded-lg border border-red-700 bg-red-50 p-4 text-red-800">
-        {{ loadError }}
-        <button
-          type="button"
-          class="ml-2 font-semibold underline focus:outline-none focus-visible:ring-4 focus-visible:ring-red-600/40 rounded"
-          @click="loadData"
-        >
-          Retry
-        </button>
-      </p>
-
-      <section aria-labelledby="balance-heading" class="rounded-2xl bg-blue-800 p-6 text-white shadow">
-        <h2 id="balance-heading" class="text-sm font-medium text-blue-100">Available balance</h2>
-        <p class="mt-2 text-4xl font-bold tabular-nums" aria-live="polite">
-          <span v-if="balance !== null">{{ formatUsd(balance) }}</span>
-          <span v-else-if="loading">Loading…</span>
-          <span v-else>—</span>
-        </p>
+    <main>
+      <section class="relative overflow-hidden">
+        <!-- Soft shapes, decorative only. -->
+        <div class="pointer-events-none absolute -right-24 -top-24 h-80 w-80 rounded-full bg-accent-soft" aria-hidden="true" />
+        <div class="pointer-events-none absolute -bottom-20 right-40 h-48 w-48 rounded-full bg-white" aria-hidden="true" />
+        <div class="relative mx-auto max-w-7xl px-4 py-16 sm:px-8 sm:py-24">
+          <h1 class="max-w-3xl text-[40px] sm:text-[56px]">Stop the scam before the money moves</h1>
+          <p class="mt-5 max-w-2xl text-xl text-muted">
+            We check that the account you’re paying really belongs to the person you think you’re paying.
+          </p>
+          <div class="mt-8 flex flex-wrap gap-4">
+            <button type="button" class="btn btn-primary text-lg" @click="go(1)">Start the walkthrough</button>
+            <button type="button" class="btn btn-secondary text-lg" @click="go(6)">See the pilot plan</button>
+          </div>
+        </div>
       </section>
 
-      <div class="grid gap-6 md:grid-cols-2">
-        <section aria-labelledby="add-heading" class="rounded-2xl bg-white p-6 shadow">
-          <h2 id="add-heading" class="text-lg font-semibold">Add transaction</h2>
-
-          <form class="mt-4 space-y-4" novalidate @submit.prevent="submit">
-            <div>
-              <label for="description" class="block text-sm font-medium">Description</label>
-              <input
-                id="description"
-                v-model="form.description"
-                type="text"
-                maxlength="200"
-                autocomplete="off"
-                :aria-invalid="errors.description ? 'true' : 'false'"
-                :aria-describedby="errors.description ? 'description-error' : undefined"
-                :class="inputClass"
-              >
-              <p v-if="errors.description" id="description-error" role="alert" class="mt-1 text-sm text-red-700">
-                {{ errors.description }}
-              </p>
-            </div>
-
-            <div>
-              <label for="amount" class="block text-sm font-medium">Amount (USD)</label>
-              <input
-                id="amount"
-                v-model="form.amount"
-                type="text"
-                inputmode="decimal"
-                placeholder="0.00"
-                :aria-invalid="errors.amount ? 'true' : 'false'"
-                :aria-describedby="errors.amount ? 'amount-error' : undefined"
-                :class="inputClass"
-              >
-              <p v-if="errors.amount" id="amount-error" role="alert" class="mt-1 text-sm text-red-700">
-                {{ errors.amount }}
-              </p>
-            </div>
-
-            <fieldset>
-              <legend class="text-sm font-medium">Type</legend>
-              <div class="mt-1 flex gap-6">
-                <label class="flex items-center gap-2">
-                  <input v-model="form.direction" type="radio" value="out" class="h-4 w-4 accent-blue-700 focus:outline-none focus-visible:ring-4 focus-visible:ring-blue-600/40">
-                  Money out
-                </label>
-                <label class="flex items-center gap-2">
-                  <input v-model="form.direction" type="radio" value="in" class="h-4 w-4 accent-blue-700 focus:outline-none focus-visible:ring-4 focus-visible:ring-blue-600/40">
-                  Money in
-                </label>
-              </div>
-            </fieldset>
-
-            <p v-if="submitError" role="alert" class="rounded-lg border border-red-700 bg-red-50 p-3 text-sm text-red-800">
-              {{ submitError }}
-            </p>
-            <p v-if="submitStatus" role="status" class="text-sm text-green-800">{{ submitStatus }}</p>
-
-            <button
-              type="submit"
-              :disabled="submitting"
-              class="w-full rounded-lg bg-blue-700 px-4 py-2 font-semibold text-white hover:bg-blue-800 disabled:opacity-60 focus:outline-none focus-visible:ring-4 focus-visible:ring-blue-600/40 focus-visible:ring-offset-2"
-            >
-              {{ submitting ? 'Adding…' : 'Add transaction' }}
+      <div id="walkthrough" ref="walkthrough" class="scroll-mt-0">
+        <nav class="sticky top-0 z-30 border-y border-line bg-white/95 backdrop-blur" aria-label="Walkthrough steps">
+          <div class="mx-auto flex max-w-7xl items-center gap-2 px-4 py-3 sm:gap-3 sm:px-8">
+            <button type="button" class="btn btn-secondary w-12 shrink-0 px-0 sm:w-auto sm:px-4" :disabled="step === 1" :class="step === 1 ? 'opacity-40' : ''" @click="go(step - 1)">
+              <ArrowLeft :size="20" aria-hidden="true" /><span class="sr-only sm:not-sr-only">Back</span>
             </button>
-          </form>
-        </section>
+            <ol class="flex flex-1 items-center justify-between gap-0.5 sm:justify-center sm:gap-2">
+              <li v-for="s in STEPS" :key="s.n">
+                <button
+                  type="button"
+                  class="flex min-h-[44px] min-w-[36px] items-center justify-center gap-2 rounded-full px-1 text-base font-semibold sm:px-3"
+                  :class="step === s.n ? 'bg-accent text-white' : 'text-muted hover:text-navy'"
+                  :aria-current="step === s.n ? 'step' : undefined"
+                  @click="go(s.n)"
+                >
+                  <span
+                    class="flex h-7 w-7 items-center justify-center rounded-full border-2 text-sm"
+                    :class="step === s.n ? 'border-white' : 'border-line'"
+                  >{{ s.n }}</span>
+                  <span :class="step === s.n ? 'hidden sm:inline' : 'hidden xl:inline'">{{ s.label }}</span>
+                </button>
+              </li>
+            </ol>
+            <button type="button" class="btn btn-primary w-12 shrink-0 px-0 sm:w-auto sm:px-4" :disabled="step === 6" :class="step === 6 ? 'opacity-40' : ''" @click="go(step + 1)">
+              <span class="sr-only sm:not-sr-only">Next</span><ArrowRight :size="20" aria-hidden="true" />
+            </button>
+          </div>
+        </nav>
 
-        <section aria-labelledby="activity-heading" class="rounded-2xl bg-white p-6 shadow">
-          <h2 id="activity-heading" class="text-lg font-semibold">Recent activity</h2>
-
-          <p v-if="loading && !transactions.length" class="mt-4 text-slate-700">Loading…</p>
-          <p v-else-if="!transactions.length" class="mt-4 text-slate-700">No transactions yet.</p>
-
-          <ul v-else class="mt-4 divide-y divide-slate-200">
-            <li v-for="tx in transactions" :key="tx.id" class="flex items-start justify-between gap-4 py-3">
-              <div class="min-w-0">
-                <p class="truncate font-medium">{{ tx.description }}</p>
-                <p class="text-sm text-slate-700">
-                  <time :datetime="tx.created_at">{{ formatDate(tx.created_at) }}</time>
-                </p>
-              </div>
-              <p
-                class="shrink-0 font-semibold tabular-nums"
-                :class="Number(tx.amount) < 0 ? 'text-slate-900' : 'text-green-800'"
-              >
-                <span class="sr-only">{{ Number(tx.amount) < 0 ? 'Debit' : 'Credit' }}:</span>
-                {{ Number(tx.amount) < 0 ? '−' : '+' }}{{ formatUsd(Math.abs(Number(tx.amount))) }}
-              </p>
-            </li>
-          </ul>
-        </section>
+        <div class="mx-auto max-w-7xl px-4 py-12 sm:px-8 sm:py-16">
+          <p class="sr-only" aria-live="polite">Step {{ step }} of 6: {{ current.label }}</p>
+          <Transition name="fade-slide" mode="out-in">
+            <component :is="current.component" :key="step" @go="go" />
+          </Transition>
+          <p class="mt-12 text-base text-muted">Use the arrow keys or the step bar to move between steps.</p>
+        </div>
       </div>
     </main>
+
+    <footer class="border-t border-line bg-white">
+      <div class="mx-auto max-w-7xl px-4 py-8 text-base text-muted sm:px-8">
+        Concept prototype for HuskyHack 2026. Not an official Sound Credit Union product.
+      </div>
+    </footer>
   </div>
 </template>
