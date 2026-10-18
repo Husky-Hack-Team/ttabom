@@ -1,0 +1,105 @@
+{
+  "disclaimer": "Synthetic data, about 41% scam victims by design. Not a measure of real-world performance.",
+  "payments_initiated": 764,
+  "decisions": {
+    "PASS": 563,
+    "NEW_PAYEE_CONFIRM": 127,
+    "STEP_UP_PRE_CHANGE_CONTACT": 30,
+    "EMPLOYEE_REVIEW_HOLD": 15,
+    "MISMATCH_PAUSE": 14,
+    "BRANCH_EMPLOYEE_PROMPT": 14,
+    "EMPLOYEE_OUTREACH": 1
+  },
+  "scam": {
+    "payments": 143,
+    "members": 48,
+    "payments_paused_before_money_moved": 143,
+    "payments_passed": 0,
+    "dollars_attempted": 340545.71,
+    "dollars_paused_before_money_moved": 340545.71,
+    "expected_dollars_stopped": 110655.17,
+    "expected_dollars_stopped_by_cancel_rate": {
+      "0.5": 83355.17,
+      "0.8": 110655.17,
+      "1.0": 128855.17
+    },
+    "dollars_paused_for_employee_not_credited": 125100.75,
+    "dollars_confirmed_by_member_and_sent": 86589.79,
+    "decisions": {
+      "NEW_PAYEE_CONFIRM": 86,
+      "STEP_UP_PRE_CHANGE_CONTACT": 24,
+      "MISMATCH_PAUSE": 11,
+      "BRANCH_EMPLOYEE_PROMPT": 11,
+      "EMPLOYEE_REVIEW_HOLD": 10,
+      "EMPLOYEE_OUTREACH": 1
+    }
+  },
+  "key": {
+    "dollars_attempted": 340545.71,
+    "dollars_sent": 213608.22,
+    "dollars_prevented": 126937.49,
+    "reconciles_with_replay": true
+  },
+  "time_to_intervention_minutes": {
+    "members_with_ours": 48,
+    "median_ours": 22.5,
+    "members_with_key": 33,
+    "median_key": 1134.0,
+    "scam_members_key_never_intervened": 15
+  },
+  "lookalikes": {
+    "members": 20,
+    "members_flagged": 20,
+    "payments_flagged": 38,
+    "friction_minutes": 387,
+    "friction_minutes_per_member": 19.4,
+    "decisions": {
+      "NEW_PAYEE_CONFIRM": 22,
+      "STEP_UP_PRE_CHANGE_CONTACT": 5,
+      "EMPLOYEE_REVIEW_HOLD": 5,
+      "BRANCH_EMPLOYEE_PROMPT": 3,
+      "MISMATCH_PAUSE": 3
+    }
+  },
+  "routine": {
+    "members": 50,
+    "members_flagged": 10,
+    "payments_flagged": 10,
+    "friction_minutes": 10
+  },
+  "non_scam_payments": {
+    "total": 621,
+    "flagged": 58,
+    "friction_minutes": 407
+  },
+  "assumptions": {
+    "cancel_rate_after_not_mine": 0.8,
+    "ato_stop_rate": 1.0,
+    "employee_stop_rate": 0.0,
+    "confirm_stop_rate": 0.0,
+    "friction_minutes": {
+      "PASS": 0,
+      "NEW_PAYEE_CONFIRM": 1,
+      "STEP_UP_PRE_CHANGE_CONTACT": 1,
+      "MISMATCH_PAUSE": 10,
+      "BRANCH_EMPLOYEE_PROMPT": 10,
+      "EMPLOYEE_REVIEW_HOLD": 60,
+      "EMPLOYEE_OUTREACH": 60
+    }
+  },
+  "callouts": {
+    "miss": {
+      "payment_id": "P1102-005",
+      "member": "M1102",
+      "decision": "NEW_PAYEE_CONFIRM",
+      "amount": 5000.0
+    },
+    "false_positive": {
+      "payment_id": "P1104-006",
+      "member": "M1104",
+      "decision": "EMPLOYEE_REVIEW_HOLD",
+      "friction_minutes": 60
+    },
+    "scam_payments_passed": []
+  }
+}
