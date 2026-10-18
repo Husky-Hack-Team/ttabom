@@ -1,7 +1,7 @@
 <script setup>
 // Step 1 phone: "Send money" with the live account check.
 // Shared by the walkthrough (StepSignal) and the standalone /prototype app.
-import { CircleCheck, LoaderCircle, ShieldCheck, TriangleAlert } from 'lucide-vue-next'
+import { CircleCheck, LoaderCircle, Pencil, ShieldCheck, TriangleAlert } from 'lucide-vue-next'
 import demo from '~/data/demo.json'
 import { matchAccount, digitsOnly } from '~/utils/matchAccount'
 import { capitalize, formatUsd } from '~/utils/format'
@@ -60,7 +60,7 @@ defineExpose({ fill })
 
 function review() {
   if (!ready.value) {
-    hint.value = 'Choose one of the demo accounts first.'
+    hint.value = 'Enter the full routing number and account number first.'
     return
   }
   if (status.value === 'checking' || status.value === 'idle') {
@@ -83,9 +83,12 @@ watch(status, (v) => {
 })
 
 const mismatch = computed(() => status.value === 'not_verified')
+const fieldClass = computed(() => (mismatch.value ? '!border-alert pr-12' : ''))
 const selectedKind = computed(() => {
   if (!ready.value) return null
-  return routing.value === tommyAccount.routing_number && account.value === tommyAccount.account_number ? 'saved' : 'caller'
+  if (routing.value === tommyAccount.routing_number && account.value === tommyAccount.account_number) return 'saved'
+  if (routing.value === callerAccount.routing_number && account.value === callerAccount.account_number) return 'caller'
+  return 'custom'
 })
 </script>
 
@@ -117,8 +120,51 @@ const selectedKind = computed(() => {
         :class="mismatch ? 'border-alert' : 'border-line'"
         aria-describedby="account-status"
       >
-        <legend class="px-1 text-base font-semibold text-ink">Routing + account number</legend>
-        <p class="text-sm text-muted">Demo-fill both fields together:</p>
+        <legend class="px-1 text-base font-semibold text-ink">Bank details</legend>
+
+        <div class="flex items-center justify-between gap-2">
+          <label for="routing" class="text-base font-semibold text-ink">Routing number</label>
+          <span class="flex items-center gap-1 rounded-full bg-page px-2 py-0.5 text-xs text-muted">
+            <Pencil :size="12" aria-hidden="true" />Type manually
+          </span>
+        </div>
+        <div class="relative mt-1.5">
+          <input
+            id="routing"
+            v-model="routing"
+            class="field"
+            :class="fieldClass"
+            inputmode="numeric"
+            autocomplete="off"
+            maxlength="11"
+            placeholder="9 digits"
+            :aria-invalid="mismatch ? 'true' : 'false'"
+          >
+          <TriangleAlert v-if="mismatch" :size="22" class="absolute right-4 top-1/2 -translate-y-1/2 text-alert" aria-hidden="true" />
+        </div>
+
+        <div class="mt-3 flex items-center justify-between gap-2">
+          <label for="account" class="text-base font-semibold text-ink">Account number</label>
+          <span class="flex items-center gap-1 rounded-full bg-page px-2 py-0.5 text-xs text-muted">
+            <Pencil :size="12" aria-hidden="true" />Type manually
+          </span>
+        </div>
+        <div class="relative mt-1.5">
+          <input
+            id="account"
+            v-model="account"
+            class="field"
+            :class="fieldClass"
+            inputmode="numeric"
+            autocomplete="off"
+            maxlength="17"
+            placeholder="Account number"
+            :aria-invalid="mismatch ? 'true' : 'false'"
+          >
+          <TriangleAlert v-if="mismatch" :size="22" class="absolute right-4 top-1/2 -translate-y-1/2 text-alert" aria-hidden="true" />
+        </div>
+
+        <p class="mt-3 text-sm text-muted">Or demo-fill both fields:</p>
         <div class="mt-2 grid gap-2" role="group" aria-label="Choose demo account details">
           <button
             type="button"
@@ -172,7 +218,7 @@ const selectedKind = computed(() => {
               <TriangleAlert :size="22" class="mt-0.5 shrink-0 text-alert" aria-hidden="true" />
               <span>
                 <strong class="text-alert">This account isn’t one of {{ contact.name }}’s verified accounts.</strong>
-                The selected numbers don’t match any account {{ contact.name }} has verified.
+                The numbers you entered don’t match any account {{ contact.name }} has verified.
               </span>
             </p>
             <p class="mt-2 pl-[34px]">If you continue, we’ll pause it for up to {{ scam.hold_hours }} hours and ask {{ contact.name }} on his saved phone.</p>

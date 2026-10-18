@@ -28,7 +28,7 @@ const signals = [
     <template #explain>
       <p>
         {{ scam.member_name }} is sending {{ formatUsd(p.amount) }} by {{ p.rail.toLowerCase() }} to her grandson {{ contact.name }}, or so a
-        caller told her. As she selects demo account details, we check them against the accounts {{ contact.name }} has already been paid at.
+        caller told her. As she enters the account details, we check them against the accounts {{ contact.name }} has already been paid at.
       </p>
       <p>The check compares the full routing and account numbers. It says only “verified” or “not verified”.</p>
       <ul class="space-y-2 pt-1" aria-label="Signals">
@@ -50,7 +50,7 @@ const signals = [
         <PhoneSendMoney @go="emit('go', $event)" />
       </PhoneFrame>
 
-      <p class="mt-4 text-center text-base text-muted">Use either demo-fill option inside the phone.</p>
+      <p class="mt-4 text-center text-base text-muted">Type the details or use either demo-fill option inside the phone.</p>
     </div>
   </StepLayout>
 </template>
