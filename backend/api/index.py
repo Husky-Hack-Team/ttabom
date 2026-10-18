@@ -74,6 +74,25 @@ class TransactionIn(BaseModel):
         return value
 
 
+@app.get("/", include_in_schema=False)
+def root():
+    # The API lives under /api; this just says so instead of a bare 404.
+    return {
+        "name": "ttabom API",
+        "health": "/api/health",
+        "docs": "/docs",
+        "endpoints": [
+            "/api/transactions",
+            "/api/balance",
+            "/api/replay/metrics",
+            "/api/replay/members",
+            "/api/replay/members/{id}",
+            "/api/replay/cases",
+            "/api/vcp/check",
+        ],
+    }
+
+
 router = APIRouter(prefix="/api")
 
 
