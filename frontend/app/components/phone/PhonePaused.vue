@@ -1,7 +1,7 @@
 <script setup>
 // Step 2 phone: the payment is paused while Tommy is asked.
 // Shared by the walkthrough (StepIntervention) and the standalone /prototype app.
-import { ArrowRight, CircleCheck, Clock, Hourglass, Phone, ShieldAlert } from 'lucide-vue-next'
+import { ArrowRight, CircleCheck, Hourglass, Phone, ShieldAlert } from 'lucide-vue-next'
 import demo from '~/data/demo.json'
 import { formatUsd } from '~/utils/format'
 import StoryEndActions from '~/components/phone/StoryEndActions.vue'
@@ -37,9 +37,9 @@ watch(state, (v) => emit('update:screen', v))
       <p class="mt-3 text-lg">Your {{ formatUsd(p.amount) }} is paused. <strong>Nothing has been sent.</strong></p>
       <div class="mt-5 space-y-3 rounded-2xl bg-page p-4 text-base">
         <p class="flex items-start gap-3"><Hourglass :size="20" class="mt-0.5 shrink-0 text-accent" aria-hidden="true" />Paused up to {{ scam.hold_hours }} hours</p>
-        <p class="flex items-start gap-3">
-          <Clock :size="20" class="mt-0.5 shrink-0 text-accent" aria-hidden="true" />
-          We’ve asked {{ contact.name }} on his phone on file since {{ contact.phone_on_file_since_label }}.
+        <p class="flex items-center gap-3">
+          <PersonAvatar :name="contact.name" :size="36" />
+          <span>We’ve asked {{ contact.name }} on his phone on file since {{ contact.phone_on_file_since_label }}.</span>
         </p>
       </div>
       <p v-if="state === 'calling'" class="mt-4 flex items-center gap-2 rounded-2xl bg-accent-soft p-4 text-base" role="status">

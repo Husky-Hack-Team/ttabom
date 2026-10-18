@@ -1,7 +1,7 @@
 <script setup>
 // Step 1 phone: "Send money" with the live account check.
 // Shared by the walkthrough (StepSignal) and the standalone /prototype app.
-import { CircleCheck, LoaderCircle, Pencil, ShieldCheck, TriangleAlert } from 'lucide-vue-next'
+import { CircleCheck, LoaderCircle, ShieldCheck, TriangleAlert } from 'lucide-vue-next'
 import demo from '~/data/demo.json'
 import { matchAccount, digitsOnly } from '~/utils/matchAccount'
 import { capitalize, formatUsd } from '~/utils/format'
@@ -60,7 +60,7 @@ defineExpose({ fill })
 
 function review() {
   if (!ready.value) {
-    hint.value = 'Enter the full routing number and account number first.'
+    hint.value = 'Choose one of the demo accounts first.'
     return
   }
   if (status.value === 'checking' || status.value === 'idle') {
@@ -83,7 +83,10 @@ watch(status, (v) => {
 })
 
 const mismatch = computed(() => status.value === 'not_verified')
-const fieldClass = computed(() => (mismatch.value ? '!border-alert pr-12' : ''))
+const selectedKind = computed(() => {
+  if (!ready.value) return null
+  return routing.value === tommyAccount.routing_number && account.value === tommyAccount.account_number ? 'saved' : 'caller'
+})
 </script>
 
 <template>
@@ -100,9 +103,7 @@ const fieldClass = computed(() => (mismatch.value ? '!border-alert pr-12' : ''))
       <h3 class="mt-2 text-[26px]">Send money</h3>
 
       <div class="mt-4 flex items-center gap-3 rounded-2xl border-2 border-line p-3">
-        <span class="flex h-11 w-11 items-center justify-center rounded-full bg-accent-soft text-lg font-bold text-navy" aria-hidden="true">
-          {{ contact.name[0] }}
-        </span>
+        <PersonAvatar :name="contact.name" :size="44" />
         <span class="text-lg">
           <span class="text-muted">To:</span> <strong class="text-navy">{{ contact.name }}</strong> · {{ capitalize(contact.relationship) }}
         </span>
@@ -111,54 +112,46 @@ const fieldClass = computed(() => (mismatch.value ? '!border-alert pr-12' : ''))
       <label for="amount" class="mt-4 text-base font-semibold text-ink">Amount</label>
       <input id="amount" class="field mt-1.5 text-xl font-semibold" :value="formatUsd(p.amount)" readonly>
 
-      <div class="mt-4 flex items-center justify-between">
-        <label for="routing" class="text-base font-semibold text-ink">Routing number</label>
-        <span class="flex items-center gap-1 rounded-full bg-page px-2 py-0.5 text-sm text-muted"><Pencil :size="13" aria-hidden="true" />Typed manually</span>
-      </div>
-      <div class="relative mt-1.5">
-        <input
-          id="routing"
-          v-model="routing"
-          class="field"
-          :class="fieldClass"
-          inputmode="numeric"
-          autocomplete="off"
-          maxlength="11"
-          placeholder="9 digits"
-          :aria-invalid="mismatch ? 'true' : 'false'"
-          aria-describedby="account-status"
-        >
-        <TriangleAlert v-if="mismatch" :size="22" class="absolute right-4 top-1/2 -translate-y-1/2 text-alert" aria-hidden="true" />
-      </div>
-
-      <div class="mt-4 flex items-center justify-between">
-        <label for="account" class="text-base font-semibold text-ink">Account number</label>
-        <span class="flex items-center gap-1 rounded-full bg-page px-2 py-0.5 text-sm text-muted"><Pencil :size="13" aria-hidden="true" />Typed manually</span>
-      </div>
-      <div class="relative mt-1.5">
-        <input
-          id="account"
-          v-model="account"
-          class="field"
-          :class="fieldClass"
-          inputmode="numeric"
-          autocomplete="off"
-          maxlength="17"
-          placeholder="Account number"
-          :aria-invalid="mismatch ? 'true' : 'false'"
-          aria-describedby="account-status"
-        >
-        <TriangleAlert v-if="mismatch" :size="22" class="absolute right-4 top-1/2 -translate-y-1/2 text-alert" aria-hidden="true" />
-      </div>
-
-      <!-- Standalone only: the walkthrough has these as buttons under the phone. -->
-      <div v-if="standalone" class="mt-3" role="group" aria-label="Fill the account for me">
-        <p class="text-sm text-muted">Fill it for me:</p>
-        <div class="mt-1.5 flex flex-wrap gap-2">
-          <button type="button" class="proto-chip" @click="fill(tommyAccount)">{{ contact.name }}’s real account</button>
-          <button type="button" class="proto-chip" @click="fill(callerAccount)">Number the caller gave</button>
+      <fieldset
+        class="mt-4 rounded-2xl border-2 p-3"
+        :class="mismatch ? 'border-alert' : 'border-line'"
+        aria-describedby="account-status"
+      >
+        <legend class="px-1 text-base font-semibold text-ink">Routing + account number</legend>
+        <p class="text-sm text-muted">Demo-fill both fields together:</p>
+        <div class="mt-2 grid gap-2" role="group" aria-label="Choose demo account details">
+          <button
+            type="button"
+            class="demo-account-option"
+            :class="selectedKind === 'saved' ? 'is-selected is-verified' : ''"
+            :aria-pressed="selectedKind === 'saved'"
+            @click="fill(tommyAccount)"
+          >
+            <PersonAvatar :name="contact.name" :size="36" />
+            <span class="min-w-0 flex-1 text-left">
+              <strong class="block text-navy">{{ contact.name }}’s saved account</strong>
+              <span class="block truncate text-sm text-muted">{{ tommyAccount.bank }} · {{ tommyAccount.account_masked }}</span>
+            </span>
+            <CircleCheck v-if="selectedKind === 'saved'" :size="20" class="shrink-0 text-ok" aria-hidden="true" />
+          </button>
+          <button
+            type="button"
+            class="demo-account-option"
+            :class="selectedKind === 'caller' ? 'is-selected is-mismatch' : ''"
+            :aria-pressed="selectedKind === 'caller'"
+            @click="fill(callerAccount)"
+          >
+            <span class="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-alert-soft text-alert" aria-hidden="true">
+              <TriangleAlert :size="20" />
+            </span>
+            <span class="min-w-0 flex-1 text-left">
+              <strong class="block text-navy">Number the caller gave</strong>
+              <span class="block truncate text-sm text-muted">{{ callerAccount.bank }} · {{ callerAccount.account_masked }}</span>
+            </span>
+            <CircleCheck v-if="selectedKind === 'caller'" :size="20" class="shrink-0 text-alert" aria-hidden="true" />
+          </button>
         </div>
-      </div>
+      </fieldset>
 
       <div id="account-status" ref="statusEl" class="mt-4" aria-live="polite">
         <Transition name="fade-slide" mode="out-in">
@@ -179,7 +172,7 @@ const fieldClass = computed(() => (mismatch.value ? '!border-alert pr-12' : ''))
               <TriangleAlert :size="22" class="mt-0.5 shrink-0 text-alert" aria-hidden="true" />
               <span>
                 <strong class="text-alert">This account isn’t one of {{ contact.name }}’s verified accounts.</strong>
-                The numbers you typed don’t match any account {{ contact.name }} has verified.
+                The selected numbers don’t match any account {{ contact.name }} has verified.
               </span>
             </p>
             <p class="mt-2 pl-[34px]">If you continue, we’ll pause it for up to {{ scam.hold_hours }} hours and ask {{ contact.name }} on his saved phone.</p>

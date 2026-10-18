@@ -2,7 +2,7 @@
 // Step 4 phone: the legitimate look-alike (M1037 paying Uma's new account).
 // Shared by the walkthrough (StepLegit) and the standalone /prototype app.
 // `stage` is owned by the parent: the walkthrough's "Show Uma's answer" button sets it.
-import { CircleCheck, Hourglass, MessageCircle, Send } from 'lucide-vue-next'
+import { CircleCheck, MessageCircle, Send } from 'lucide-vue-next'
 import demo from '~/data/demo.json'
 import { capitalize, formatUsd } from '~/utils/format'
 import StoryEndActions from '~/components/phone/StoryEndActions.vue'
@@ -21,8 +21,12 @@ const contact = l.contact
 <template>
   <Transition name="fade-slide" mode="out-in">
     <div v-if="stage === 'paused'" key="paused" class="flex flex-1 flex-col">
-      <div class="mt-6 flex h-16 w-16 items-center justify-center rounded-full bg-accent-soft">
-        <Hourglass :size="32" class="text-accent" aria-hidden="true" />
+      <div class="mt-6 flex items-center gap-4">
+        <PersonAvatar :name="contact.name" :size="64" />
+        <div>
+          <p class="text-sm font-semibold uppercase tracking-wider text-muted">Checking with</p>
+          <p class="text-xl font-bold text-navy">{{ contact.name }}</p>
+        </div>
       </div>
       <h3 class="mt-4 text-[26px]">Quick check with {{ contact.name }}</h3>
       <p class="mt-3 text-lg">
@@ -40,8 +44,11 @@ const contact = l.contact
       </button>
     </div>
     <div v-else-if="stage === 'answered'" key="answered" class="flex flex-1 flex-col">
-      <div class="mt-6 flex h-16 w-16 items-center justify-center rounded-full bg-ok-soft">
-        <CircleCheck :size="34" class="text-ok" aria-hidden="true" />
+      <div class="mt-6 flex items-center gap-4">
+        <PersonAvatar :name="contact.name" :size="64" />
+        <span class="flex h-10 w-10 items-center justify-center rounded-full bg-ok-soft">
+          <CircleCheck :size="26" class="text-ok" aria-hidden="true" />
+        </span>
       </div>
       <h3 class="mt-4 text-[26px]">{{ contact.name }} confirmed this account.</h3>
       <p class="mt-3 text-lg">You’re all set. It took about 2 minutes.</p>

@@ -9,13 +9,6 @@ const emit = defineEmits(['go'])
 const { scam } = demo
 const p = scam.payment
 const contact = scam.contact
-const tommyAccount = contact.verified_accounts[0]
-const callerAccount = p.recipient
-
-// The phone itself lives in PhoneSendMoney; the buttons under it fill its fields.
-const phone = ref(null)
-const fill = (acct) => phone.value?.fill(acct)
-
 const signals = [
   { icon: UserRound, text: `The account doesn’t belong to the person she picked (${contact.name})`, main: true },
   { icon: Clock, text: `New destination, added today at ${p.recipient_added_label}` },
@@ -35,7 +28,7 @@ const signals = [
     <template #explain>
       <p>
         {{ scam.member_name }} is sending {{ formatUsd(p.amount) }} by {{ p.rail.toLowerCase() }} to her grandson {{ contact.name }}, or so a
-        caller told her. As she types the account details, we check them against the accounts {{ contact.name }} has already been paid at.
+        caller told her. As she selects demo account details, we check them against the accounts {{ contact.name }} has already been paid at.
       </p>
       <p>The check compares the full routing and account numbers. It says only “verified” or “not verified”.</p>
       <ul class="space-y-2 pt-1" aria-label="Signals">
@@ -54,19 +47,10 @@ const signals = [
 
     <div class="w-full max-w-[390px]">
       <PhoneFrame :label="`${scam.member_name}'s phone: Send money`" :time="p.time_label.replace(/ [AP]M/, '')">
-        <PhoneSendMoney ref="phone" @go="emit('go', $event)" />
+        <PhoneSendMoney @go="emit('go', $event)" />
       </PhoneFrame>
 
-      <div class="mt-6">
-        <p class="text-center text-base text-muted">Try it without typing:</p>
-        <div class="mt-2 flex flex-col gap-3">
-          <button type="button" class="btn btn-secondary w-full text-base" @click="fill(tommyAccount)">Try {{ contact.name }}’s real account</button>
-          <button type="button" class="btn btn-secondary w-full text-base" @click="fill(callerAccount)">Try the number the caller gave</button>
-        </div>
-        <p class="mt-3 text-center text-base text-muted">
-          Or type your own. {{ contact.name }}’s real account: {{ tommyAccount.bank }} {{ tommyAccount.account_masked }}.
-        </p>
-      </div>
+      <p class="mt-4 text-center text-base text-muted">Use either demo-fill option inside the phone.</p>
     </div>
   </StepLayout>
 </template>

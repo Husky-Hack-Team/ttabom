@@ -3,7 +3,7 @@
 // It reuses the walkthrough's phone screens (components/phone/*) in standalone
 // mode and adds a home screen, an in-app header (Back · Home · Help) and a
 // Help sheet with the synthetic-data disclaimer.
-import { ChevronLeft, ChevronRight, CircleCheck, CircleHelp, House, ShieldAlert, X } from 'lucide-vue-next'
+import { ArrowRight, ChevronLeft, ChevronRight, CircleCheck, CircleHelp, House, ShieldAlert, Smartphone, X } from 'lucide-vue-next'
 import demo from '~/data/demo.json'
 import { formatUsd } from '~/utils/format'
 import PhoneFrame from '~/components/PhoneFrame.vue'
@@ -19,11 +19,16 @@ const { scam, lookalike } = demo
 const FIRST_SUB = { home: null, send: 'form', paused: 'paused', views: 'main', report: 'ask', legit: 'paused' }
 const STORY_OF = { send: 'linda', paused: 'linda', views: 'linda', report: 'linda', legit: 'uma' }
 const START_OF = { linda: 'send', uma: 'legit' }
+const PEOPLE = {
+  linda: { id: 'linda', name: scam.member_name, color: 'linda' },
+  tommy: { id: 'tommy', name: scam.contact.name, color: 'tommy' }
+}
 
 const STORIES = [
   {
     id: 'linda',
     name: scam.member_name,
+    avatar: scam.member_name,
     line: `A caller says her grandson ${scam.contact.name} needs ${formatUsd(scam.payment.amount)} by ${scam.payment.rail.toLowerCase()}.`,
     tag: 'Scam',
     icon: ShieldAlert,
@@ -32,6 +37,7 @@ const STORIES = [
   {
     id: 'uma',
     name: lookalike.contact.name,
+    avatar: lookalike.contact.name,
     line: `A family member sends ${formatUsd(lookalike.payment.amount)} to ${lookalike.contact.name}’s new account.`,
     tag: 'Legit look-alike',
     icon: CircleCheck,
@@ -84,6 +90,25 @@ function startStory(id) {
   afterNavigate()
 }
 const otherStory = () => startStory(STORY_OF[state.screen] === 'linda' ? 'uma' : 'linda')
+
+const currentPhoneKey = computed(() => {
+  if (state.screen === 'home' || state.screen === 'legit') return null
+  if (state.screen === 'views' && state.view === 'tommy') return 'tommy'
+  return 'linda'
+})
+const currentPhone = computed(() => currentPhoneKey.value ? PEOPLE[currentPhoneKey.value] : null)
+
+// Make the handoff between Linda and Tommy visually explicit. The state changes
+// immediately; this short overlay confirms that the prototype moved devices.
+const switching = ref(null)
+let switchTimer
+watch(currentPhoneKey, (next, previous) => {
+  if (!next || !previous || next === previous) return
+  switching.value = { from: PEOPLE[previous], to: PEOPLE[next] }
+  clearTimeout(switchTimer)
+  switchTimer = setTimeout(() => { switching.value = null }, 900)
+})
+onBeforeUnmount(() => clearTimeout(switchTimer))
 
 const frameTime = computed(() =>
   (state.screen === 'legit' ? lookalike.payment.time_label : scam.payment.time_label).replace(/ [AP]M/, '')
@@ -162,8 +187,32 @@ function helpKeydown(e) {
         </div>
       </header>
 
+      <Transition name="owner-swap" mode="out-in">
+        <div
+          v-if="currentPhone"
+          :key="currentPhone.id"
+          class="phone-owner-strip"
+          :class="`is-${currentPhone.color}`"
+        >
+          <PersonAvatar :name="currentPhone.name" :size="42" />
+          <span class="min-w-0 flex-1 leading-tight">
+            <span class="block text-xs font-bold uppercase tracking-[0.12em] opacity-70">You’re using</span>
+            <strong class="block text-lg">{{ currentPhone.name }}’s phone</strong>
+          </span>
+          <Smartphone :size="24" class="shrink-0 opacity-70" aria-hidden="true" />
+        </div>
+        <div v-else-if="state.screen === 'legit'" key="family" class="phone-owner-strip is-family">
+          <span class="flex h-[42px] w-[42px] shrink-0 items-center justify-center rounded-full bg-white/80">
+            <Smartphone :size="23" aria-hidden="true" />
+          </span>
+          <span class="min-w-0 flex-1 leading-tight">
+            <span class="block text-xs font-bold uppercase tracking-[0.12em] opacity-70">You’re using</span>
+            <strong class="block text-lg">Family member’s phone</strong>
+          </span>
+        </div>
+      </Transition>
+
       <div ref="content" class="proto-scroll flex min-h-0 flex-1 flex-col overflow-y-auto px-5 pb-6" :inert="helpOpen || undefined">
-        <p v-if="state.screen !== 'home'" class="mt-3 text-sm font-semibold uppercase tracking-wider text-muted">{{ whosePhone }}</p>
         <Transition name="fade-slide" mode="out-in">
           <div v-if="state.screen === 'home'" key="home" class="flex flex-1 flex-col">
             <h3 class="mt-6 text-[26px]">Choose a story</h3>
@@ -171,9 +220,7 @@ function helpKeydown(e) {
             <ul class="mt-6 space-y-4">
               <li v-for="s in STORIES" :key="s.id">
                 <button type="button" class="proto-story" @click="startStory(s.id)">
-                  <span class="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-accent-soft text-xl font-bold text-navy" aria-hidden="true">
-                    {{ s.name[0] }}
-                  </span>
+                  <PersonAvatar :name="s.avatar" :size="48" />
                   <span class="min-w-0 flex-1 text-left">
                     <span class="flex flex-wrap items-center gap-2">
                       <span class="text-xl font-bold text-navy">{{ s.name }}</span>
@@ -220,6 +267,24 @@ function helpKeydown(e) {
           </div>
         </Transition>
       </div>
+
+      <Transition name="phone-switch">
+        <div v-if="switching" class="phone-switch-overlay" role="status" aria-live="assertive">
+          <p class="text-sm font-bold uppercase tracking-[0.16em] text-muted">Switching phones</p>
+          <div class="mt-5 flex items-center justify-center gap-4" aria-hidden="true">
+            <div class="phone-switch-person is-from">
+              <PersonAvatar :name="switching.from.name" :size="58" />
+              <span>{{ switching.from.name }}</span>
+            </div>
+            <ArrowRight :size="30" class="phone-switch-arrow text-accent" />
+            <div class="phone-switch-person is-to">
+              <PersonAvatar :name="switching.to.name" :size="74" />
+              <span>{{ switching.to.name }}</span>
+            </div>
+          </div>
+          <p class="mt-5 text-2xl font-bold text-navy">Now on {{ switching.to.name }}’s phone</p>
+        </div>
+      </Transition>
 
       <p class="sr-only" aria-live="polite">{{ announcement }}</p>
 

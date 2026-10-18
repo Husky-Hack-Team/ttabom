@@ -97,10 +97,19 @@
     scroll-behavior: auto;
   }
   .fade-slide-enter-active,
-  .fade-slide-leave-active {
+  .fade-slide-leave-active,
+  .owner-swap-enter-active,
+  .owner-swap-leave-active,
+  .phone-switch-enter-active,
+  .phone-switch-leave-active {
     transition: none;
   }
   .animate-spin {
+    animation: none;
+  }
+  .phone-switch-person.is-from,
+  .phone-switch-person.is-to,
+  .phone-switch-arrow {
     animation: none;
   }
 }
@@ -136,6 +145,103 @@
   .proto-story:active {
     @apply border-accent bg-accent-soft;
   }
+  .demo-account-option {
+    @apply flex min-h-[64px] w-full items-center gap-3 rounded-xl border-2 border-line bg-white px-3 py-2 text-base;
+  }
+  .demo-account-option:active {
+    @apply bg-accent-soft;
+  }
+  .demo-account-option.is-selected.is-verified {
+    @apply border-ok bg-ok-soft;
+  }
+  .demo-account-option.is-selected.is-mismatch {
+    @apply border-alert bg-alert-soft;
+  }
+}
+
+.phone-owner-strip {
+  display: flex;
+  min-height: 66px;
+  flex: none;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 20px;
+  border-bottom: 1px solid var(--color-line);
+}
+.phone-owner-strip.is-linda {
+  color: #5c2720;
+  background: #fff2ee;
+}
+.phone-owner-strip.is-tommy {
+  color: white;
+  background: var(--color-navy);
+  border-bottom-color: var(--color-navy);
+}
+.phone-owner-strip.is-family {
+  color: var(--color-navy);
+  background: var(--color-accent-soft);
+}
+
+.owner-swap-enter-active,
+.owner-swap-leave-active {
+  transition: opacity 180ms ease, transform 180ms ease;
+}
+.owner-swap-enter-from {
+  opacity: 0;
+  transform: translateX(18px);
+}
+.owner-swap-leave-to {
+  opacity: 0;
+  transform: translateX(-18px);
+}
+
+.phone-switch-overlay {
+  position: absolute;
+  inset: 56px 0 0;
+  z-index: 30;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 28px;
+  text-align: center;
+  background: rgb(255 255 255 / 0.96);
+  pointer-events: none;
+}
+.phone-switch-person {
+  display: grid;
+  justify-items: center;
+  gap: 8px;
+  color: var(--color-navy);
+  font-size: 0.95rem;
+  font-weight: 700;
+}
+.phone-switch-person.is-from {
+  animation: switch-person-out 700ms ease both;
+}
+.phone-switch-person.is-to {
+  animation: switch-person-in 700ms 80ms cubic-bezier(.2,.8,.2,1) both;
+}
+.phone-switch-arrow {
+  animation: switch-arrow 700ms ease-in-out both;
+}
+.phone-switch-enter-active,
+.phone-switch-leave-active {
+  transition: opacity 160ms ease;
+}
+.phone-switch-enter-from,
+.phone-switch-leave-to {
+  opacity: 0;
+}
+@keyframes switch-person-out {
+  to { opacity: 0.35; transform: translateX(-12px) scale(0.88); }
+}
+@keyframes switch-person-in {
+  from { opacity: 0.25; transform: translateX(18px) scale(0.72); }
+  to { opacity: 1; transform: translateX(0) scale(1); }
+}
+@keyframes switch-arrow {
+  50% { transform: translateX(8px); }
 }
 /* Keep each screen's primary buttons pinned to the bottom of the app. */
 .proto-app .phone-actions {
@@ -169,4 +275,18 @@ body.proto-page {
 }
 .proto-app .proto-scroll {
   overscroll-behavior: contain;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .owner-swap-enter-active,
+  .owner-swap-leave-active,
+  .phone-switch-enter-active,
+  .phone-switch-leave-active {
+    transition: none;
+  }
+  .phone-switch-person.is-from,
+  .phone-switch-person.is-to,
+  .phone-switch-arrow {
+    animation: none;
+  }
 }
