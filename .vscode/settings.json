@@ -9,5 +9,6 @@
         "workbench.editorinputs.searchEditorInput": true,
         "repl": true
     },
-    "workbench.editor.centeredLayoutFixedWidth": true
+    "workbench.editor.centeredLayoutFixedWidth": true,
+    "python.defaultInterpreterPath": "${workspaceFolder}/backend/.venv/bin/python"
 }
