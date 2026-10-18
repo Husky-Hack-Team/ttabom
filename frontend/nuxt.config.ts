@@ -22,10 +22,10 @@ export default defineNuxtConfig({
       ]
     }
   },
-  // The old demo routes now live on the single page.
+  // Same-origin API: /api/* is proxied to the backend, so the browser never
+  // needs the backend's URL and there's no CORS. BACKEND_URL is read at build
+  // time; set it in the Vercel project before deploying.
   routeRules: {
-    '/demo': { redirect: '/' },
-    '/replay': { redirect: '/' },
-    '/case': { redirect: '/' }
+    '/api/**': { proxy: `${(process.env.BACKEND_URL || 'http://localhost:8000').replace(/\/+$/, '')}/api/**` }
   }
 })

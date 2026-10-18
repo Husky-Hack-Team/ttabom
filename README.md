@@ -138,7 +138,7 @@ Create **two** Vercel projects that import this same GitHub repo.
 1. Choose **Add New → Project** and import the same repo again.
 2. Set **Root Directory** to `frontend` and **Framework Preset** to **Nuxt.js**.
 3. Add this **Environment Variable**:
-   - `NUXT_PUBLIC_API_BASE`: the backend URL, for example `https://ttabom-api.vercel.app` (**no trailing slash**)
+   - `BACKEND_URL`: the backend URL, for example `https://ttabom-backend.vercel.app` (no trailing slash). The frontend proxies `/api/*` to it, and it's read at **build** time, so redeploy after changing it.
 4. Deploy.
 
 ### 3. Connect the two
@@ -148,7 +148,7 @@ Go back to the backend project, set `FRONTEND_URL` to the frontend URL, and **re
 | Project  | Variables                                                      |
 | -------- | -------------------------------------------------------------- |
 | backend  | `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`, `FRONTEND_URL`    |
-| frontend | `NUXT_PUBLIC_API_BASE`                                         |
+| frontend | `BACKEND_URL`                                                  |
 
 ## Troubleshooting
 
@@ -156,6 +156,6 @@ Go back to the backend project, set `FRONTEND_URL` to the frontend URL, and **re
 - **`Database error: Could not find the table 'public.transactions'`**: the migration hasn't been applied to the project `SUPABASE_URL` points to. Run `npx supabase db push --include-seed` (after `link`), or paste `backend/schema.sql` into that project's SQL Editor.
 - **CORS error in the browser console** ("blocked by CORS policy"): the backend allows only `http://localhost:3000` plus `FRONTEND_URL`. On Vercel, `FRONTEND_URL` must match the frontend's origin exactly: `https://`, no trailing slash, no path. Preview deployments get different URLs and won't match unless you set `FRONTEND_URL` for them too. Locally, the frontend has to run on port 3000.
 - **"Server is missing SUPABASE_URL or SUPABASE_SERVICE_ROLE_KEY"**: locally, check that `backend/.env` exists and is filled in, and restart uvicorn. On Vercel, add the variables in **Project Settings → Environment Variables** for the right environment (Production/Preview), then redeploy.
-- **Frontend still calls `localhost:8000` in production**: `NUXT_PUBLIC_API_BASE` isn't set in the frontend project, or you set it without redeploying.
+- **`https://<frontend>/api/health` returns a Nuxt 404 or 502**: `BACKEND_URL` isn't set in the frontend project, or you set it without redeploying. Check with `scripts/smoke.sh https://<frontend>`.
 - **Changed an env var and nothing happened**: Vercel applies env var changes only to new deployments. Open **Deployments**, then **⋯ → Redeploy** on the latest one.
 - **`npm install` crashes with `Cannot read properties of null (reading 'edgesOut')`**: this is a bug in older npm 11 releases. Run `npx npm@11.21.1 install` instead, or update npm.

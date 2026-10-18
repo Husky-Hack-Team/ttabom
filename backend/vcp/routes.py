@@ -6,7 +6,7 @@ returns engine output and observable event fields only.
 """
 
 import re
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from typing import Literal
 
 from fastapi import APIRouter, HTTPException, Query
@@ -108,6 +108,9 @@ def build_router(get_supabase):
     def vcp_check(body: CheckIn):
         # The same engine the replay scores, callable by a live transfer flow. No database access.
         event = {"event_type": "Payment Initiated", "event_sequence": "1", **{k: str(v) for k, v in body.event.items()}}
+        # Accept "timestamp" as an alias, and default to now (UTC) when missing or empty.
+        if not event.get("event_timestamp", "").strip():
+            event["event_timestamp"] = event.pop("timestamp", "").strip() or datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%S")
         try:
             return engine.evaluate(event, body.history, body.ctx)
         except (KeyError, ValueError) as exc:
