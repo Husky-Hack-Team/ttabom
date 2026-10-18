@@ -119,12 +119,10 @@ function afterNavigate() {
 
 // "Talk to a Sound specialist" (Linda) / "Talk to a person" (Tommy): a real person calls back.
 const specialist = ref(null) // null | 'linda' | 'tommy'
-const specialistAmount = ref(scam.payment.amount)
 const specialistSheet = ref(null)
 const specialistClose = ref(null)
 let specialistReturn = null
-function openSpecialist(who, amount = scam.payment.amount) {
-  specialistAmount.value = amount
+function openSpecialist(who) {
   specialistReturn = document.activeElement
   specialist.value = who
   nextTick(() => specialistClose.value?.focus())
@@ -302,7 +300,6 @@ function helpKeydown(e) {
               @update:screen="(v) => { if (state.sub !== 'ask' || v !== 'form') onSub(v) }"
               @change-answer="navigate({ sub: 'ask' })"
               @pick="openPicker"
-              @specialist="(amount) => openSpecialist('linda', amount)"
               @restart="restart"
             />
           </div>
@@ -435,7 +432,7 @@ function helpKeydown(e) {
             <h2 id="specialist-title" class="mt-3 text-2xl">{{ specialist === 'linda' ? 'A Sound specialist will call you' : 'A person will call you back' }}</h2>
             <p v-if="specialist === 'linda'" class="mt-3 text-base">
               A Sound fraud specialist, a real person, will call you back at {{ scam.member_phone_masked }}, your number on file. Your
-              {{ formatUsd(specialistAmount) }} stays paused while you wait.
+              {{ formatUsd(scam.payment.amount) }} stays paused while you wait.
             </p>
             <p v-else class="mt-3 text-base">
               A Sound fraud specialist, a real person, will call you back on this number. You don’t need to do anything else right now.

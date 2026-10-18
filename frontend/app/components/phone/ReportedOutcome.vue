@@ -1,7 +1,6 @@
 <script setup>
 // "Payment cancelled — $X was not sent · Fraud report filed": the outcome of
-// "Cancel payment & report fraud". Shared by Linda's contact mismatch flow
-// (PhoneTwoViews) and the custom-recipient risk check (PhoneCustomPayment).
+// "Cancel payment & report fraud" in Linda's contact mismatch flow (PhoneTwoViews).
 import { CircleCheck, FileText, Phone, PhoneOff, ShieldCheck } from 'lucide-vue-next'
 import { formatUsd } from '~/utils/format'
 import StoryEndActions from '~/components/phone/StoryEndActions.vue'

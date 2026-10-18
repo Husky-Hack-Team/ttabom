@@ -1,25 +1,21 @@
 <script setup>
 // /prototype only: Linda pays a custom recipient's account she has never paid before.
-// There's no saved account to compare against, so instead of an ownership
-// check this runs a deterministic risk check (utils/riskCheck.js) on Review:
-//   low     → review → Send → success
-//   medium  → review → 10-second caution step → Send or Cancel
-//   high    → paused before sending → Cancel & report / specialist / Send anyway
-import { CircleCheck, Hourglass, Info, ShieldAlert, ShieldCheck, Sparkles, TriangleAlert, UserRound } from 'lucide-vue-next'
-import demo from '~/data/demo.json'
+// There's no saved account to compare against, so every answer to "Do you know
+// this person?" leads to the same "Take a moment before you send" screen after
+// Review: a short pause, wording tailored to the answer, the signals we noticed,
+// then Send (success) or Cancel (nothing sent).
+import { CircleCheck, Hourglass, ShieldCheck, Sparkles, TriangleAlert, UserRound } from 'lucide-vue-next'
 import { formatUsd } from '~/utils/format'
-import { KNOW_ANSWERS, riskCheck } from '~/utils/riskCheck'
+import { KNOW_ANSWERS, customSignals } from '~/utils/riskCheck'
 import { CUSTOM_SAMPLE, TYPICAL_PAYMENT } from '~/data/prototypeRecipients'
 import StoryEndActions from '~/components/phone/StoryEndActions.vue'
-import ReportedOutcome from '~/components/phone/ReportedOutcome.vue'
 
 const props = defineProps({
   answer: { type: String, default: null }, // answer to "Do you know this person?"
-  screen: { type: String, default: 'form' } // form | review | caution | paused | confirm-send | sent | success | cancelled | reported
+  screen: { type: String, default: 'form' } // form | caution | success | cancelled
 })
-const emit = defineEmits(['update:screen', 'change-answer', 'pick', 'specialist', 'restart'])
+const emit = defineEmits(['update:screen', 'change-answer', 'pick', 'restart'])
 
-const { scam } = demo
 const view = ref(props.screen)
 watch(() => props.screen, (v) => { if (v) view.value = v })
 watch(view, (v) => emit('update:screen', v))
@@ -58,23 +54,19 @@ function fillSample() {
 
 const recipientName = computed(() => name.value.trim())
 const masked = computed(() => `••••${account.value.slice(-4)}`)
-const answerLabel = computed(() => KNOW_ANSWERS.find((a) => a.id === props.answer)?.label ?? 'Not answered')
-
-// ----- Risk check: recomputed from the current answer and amount every time -----
-const risk = computed(() => riskCheck({ answer: props.answer, amount: amountNum.value, typical: TYPICAL_PAYMENT }))
-const LEVEL = {
-  low: { label: 'Low risk', icon: ShieldCheck, cls: 'border-ok text-ok' },
-  medium: { label: 'Medium risk', icon: TriangleAlert, cls: 'border-[#9a5b00] text-[#7a4700]' },
-  high: { label: 'High risk', icon: ShieldAlert, cls: 'border-alert text-alert' }
-}
+const known = computed(() => KNOW_ANSWERS.find((a) => a.id === props.answer))
+const answerLabel = computed(() => known.value?.label ?? 'Not answered')
+// Recomputed from the current answer and amount, so changing the answer via Back updates them.
+const cautionLine = computed(() => known.value?.caution ?? '')
+const signals = computed(() => customSignals({ answer: props.answer, amount: amountNum.value, typical: TYPICAL_PAYMENT }))
 
 function review() {
   Object.keys(touched).forEach((k) => { touched[k] = true })
   if (!valid.value) return
-  view.value = risk.value.level === 'high' ? 'paused' : 'review'
+  view.value = 'caution'
 }
 
-// ----- Medium risk: a 10-second "take a moment" pause before Send -----
+// "Take a moment": a 10-second pause before Send is enabled.
 const WAIT = 10
 const left = ref(WAIT)
 let tick
@@ -88,8 +80,6 @@ watch(view, (v) => {
   }, 1000)
 }, { immediate: true })
 onBeforeUnmount(() => clearInterval(tick))
-
-const reportRef = computed(() => `SC-${account.value.slice(-6).padStart(6, '0')}`)
 </script>
 
 <template>
@@ -187,49 +177,31 @@ const reportRef = computed(() => `SC-${account.value.slice(-6).padStart(6, '0')}
       </div>
     </form>
 
-    <!-- Review (low / medium) -->
-    <div v-else-if="view === 'review'" key="review" class="flex flex-1 flex-col">
-      <h3 class="mt-2 text-[26px]">Review payment</h3>
-      <dl class="mt-4 space-y-2 rounded-2xl bg-page p-4 text-lg">
-        <div class="flex justify-between gap-3"><dt class="text-muted">To</dt><dd class="text-right font-bold">{{ recipientName }}</dd></div>
-        <div class="flex justify-between gap-3"><dt class="text-muted">Account</dt><dd class="font-bold tabular-nums">{{ masked }}</dd></div>
-        <div class="flex justify-between gap-3"><dt class="text-muted">Amount</dt><dd class="font-bold">{{ formatUsd(amountNum) }}</dd></div>
-      </dl>
-      <section class="mt-4 rounded-2xl border-2 border-line p-4" aria-labelledby="risk-title">
-        <h4 id="risk-title" class="flex flex-wrap items-center gap-2 text-base font-semibold text-ink">
-          Risk check
-          <span class="inline-flex items-center gap-1 rounded-full border-2 px-2.5 py-0.5 text-sm font-bold" :class="LEVEL[risk.level].cls">
-            <component :is="LEVEL[risk.level].icon" :size="14" aria-hidden="true" />{{ LEVEL[risk.level].label }}
-          </span>
-        </h4>
-        <ul class="mt-3 space-y-2 text-base" aria-label="Signals used">
-          <li v-for="sig in risk.signals" :key="sig.id" class="flex items-start gap-2">
+    <!-- Take a moment: every answer lands here -->
+    <div v-else-if="view === 'caution'" key="caution" class="flex flex-1 flex-col">
+      <div class="mt-6 flex h-16 w-16 items-center justify-center rounded-full bg-accent-soft">
+        <Hourglass :size="32" class="text-accent" aria-hidden="true" />
+      </div>
+      <h3 class="mt-4 text-[26px]">Take a moment before you send</h3>
+      <p class="mt-2 text-lg">{{ formatUsd(amountNum) }} to {{ recipientName }} · {{ masked }}</p>
+      <p v-if="cautionLine" class="mt-4 flex items-start gap-2 rounded-2xl border-2 border-alert bg-alert-soft p-4 text-base font-semibold text-ink">
+        <TriangleAlert :size="20" class="mt-0.5 shrink-0 text-alert" aria-hidden="true" />{{ cautionLine }}
+      </p>
+      <ul class="mt-4 space-y-3 text-base">
+        <li class="flex items-start gap-2"><ShieldCheck :size="18" class="mt-0.5 shrink-0 text-ok" aria-hidden="true" />Sound will never ask you to move money to protect it.</li>
+        <li class="flex items-start gap-2"><ShieldCheck :size="18" class="mt-0.5 shrink-0 text-ok" aria-hidden="true" />Scammers rush you. Someone you really know will wait while you check.</li>
+        <li class="flex items-start gap-2"><ShieldCheck :size="18" class="mt-0.5 shrink-0 text-ok" aria-hidden="true" />If you can, call them on a number you already know before sending.</li>
+      </ul>
+      <section class="mt-4 rounded-2xl border-2 border-line p-4" aria-labelledby="signals-title">
+        <h4 id="signals-title" class="text-base font-semibold text-ink">What we noticed</h4>
+        <ul class="mt-2 space-y-2 text-base" aria-label="Signals used">
+          <li v-for="sig in signals" :key="sig.id" class="flex items-start gap-2">
             <TriangleAlert v-if="sig.warn" :size="18" class="mt-0.5 shrink-0 text-alert" aria-hidden="true" />
             <CircleCheck v-else :size="18" class="mt-0.5 shrink-0 text-ok" aria-hidden="true" />
             <span><span class="sr-only">{{ sig.warn ? 'Warning: ' : 'OK: ' }}</span>{{ sig.text }}</span>
           </li>
         </ul>
       </section>
-      <p class="mt-4 flex items-start gap-2 text-base">
-        <Info :size="18" class="mt-1 shrink-0 text-accent" aria-hidden="true" />New recipient. We can’t verify who owns this account.
-      </p>
-      <div class="phone-actions mt-auto space-y-3 pt-5">
-        <button v-if="risk.level === 'low'" type="button" class="btn btn-phone btn-primary text-lg" @click="view = 'success'">Send {{ formatUsd(amountNum) }}</button>
-        <button v-else type="button" class="btn btn-phone btn-primary text-lg" @click="view = 'caution'">Continue</button>
-      </div>
-    </div>
-
-    <!-- Medium: take a moment -->
-    <div v-else-if="view === 'caution'" key="caution" class="flex flex-1 flex-col">
-      <div class="mt-6 flex h-16 w-16 items-center justify-center rounded-full bg-accent-soft">
-        <Hourglass :size="32" class="text-accent" aria-hidden="true" />
-      </div>
-      <h3 class="mt-4 text-[26px]">Take a moment before you send</h3>
-      <ul class="mt-4 space-y-3 text-base">
-        <li class="flex items-start gap-2"><ShieldCheck :size="18" class="mt-0.5 shrink-0 text-ok" aria-hidden="true" />Sound will never ask you to move money to protect it.</li>
-        <li class="flex items-start gap-2"><ShieldCheck :size="18" class="mt-0.5 shrink-0 text-ok" aria-hidden="true" />Scammers rush you. Someone you really know will wait while you check.</li>
-        <li class="flex items-start gap-2"><ShieldCheck :size="18" class="mt-0.5 shrink-0 text-ok" aria-hidden="true" />If you can, call them on a number you already know before sending.</li>
-      </ul>
       <p class="mt-4 rounded-2xl bg-page p-4 text-lg font-semibold text-navy" aria-live="polite">
         {{ left > 0 ? `You can send in ${left} second${left === 1 ? '' : 's'}.` : 'You can send now.' }}
       </p>
@@ -237,56 +209,11 @@ const reportRef = computed(() => `SC-${account.value.slice(-6).padStart(6, '0')}
         <button type="button" class="btn btn-phone btn-primary text-lg disabled:opacity-40" :disabled="left > 0" @click="view = 'success'">
           {{ left > 0 ? `Send (${left})` : `Send ${formatUsd(amountNum)}` }}
         </button>
-        <button type="button" class="btn btn-phone btn-secondary text-lg" @click="view = 'cancelled'">Cancel payment</button>
-      </div>
-    </div>
-
-    <!-- High: paused before sending -->
-    <div v-else-if="view === 'paused'" key="paused" class="flex flex-1 flex-col">
-      <div class="mt-6 flex h-16 w-16 items-center justify-center rounded-full bg-alert-soft">
-        <ShieldAlert :size="34" class="text-alert" aria-hidden="true" />
-      </div>
-      <h3 class="mt-4 text-[26px]">Payment paused before sending</h3>
-      <p class="mt-3 text-lg">Your {{ formatUsd(amountNum) }} to {{ recipientName }} <strong>hasn’t been sent.</strong></p>
-      <section class="mt-4 rounded-2xl border-2 border-alert bg-alert-soft p-4" aria-labelledby="why-title">
-        <h4 id="why-title" class="flex flex-wrap items-center gap-2 text-base font-semibold text-ink">
-          Why we paused it
-          <span class="inline-flex items-center gap-1 rounded-full border-2 border-alert bg-white px-2.5 py-0.5 text-sm font-bold text-alert">
-            <ShieldAlert :size="14" aria-hidden="true" />High risk
-          </span>
-        </h4>
-        <ul class="mt-3 space-y-2 text-base" aria-label="Signals used">
-          <li v-for="sig in risk.signals" :key="sig.id" class="flex items-start gap-2">
-            <TriangleAlert v-if="sig.warn" :size="18" class="mt-0.5 shrink-0 text-alert" aria-hidden="true" />
-            <CircleCheck v-else :size="18" class="mt-0.5 shrink-0 text-ok" aria-hidden="true" />
-            <span><span class="sr-only">{{ sig.warn ? 'Warning: ' : 'OK: ' }}</span>{{ sig.text }}</span>
-          </li>
-        </ul>
-      </section>
-      <div class="phone-actions mt-auto space-y-3 pt-5">
-        <button type="button" class="btn btn-phone btn-primary text-lg" @click="view = 'reported'">Cancel payment &amp; report fraud</button>
-        <button type="button" class="btn btn-phone btn-secondary text-lg" @click="emit('specialist', amountNum)">Talk to a Sound specialist</button>
-        <button type="button" class="link block w-full py-2 text-center" @click="view = 'confirm-send'">Send anyway</button>
-      </div>
-    </div>
-
-    <div v-else-if="view === 'confirm-send'" key="confirm" class="flex flex-1 flex-col">
-      <TriangleAlert :size="40" class="mt-6 text-alert" aria-hidden="true" />
-      <h3 class="mt-4 text-[26px]">You can still send this.</h3>
-      <p class="mt-3 text-lg">Money sent to a new account is hard to get back.</p>
-      <div class="phone-actions mt-auto space-y-3 pt-5">
-        <button type="button" class="btn btn-phone btn-primary text-lg" @click="view = 'paused'">Go back</button>
-        <button type="button" class="btn btn-phone btn-secondary text-lg" @click="view = 'sent'">Send anyway</button>
+        <button type="button" class="btn btn-phone btn-secondary text-lg" @click="view = 'cancelled'">Cancel</button>
       </div>
     </div>
 
     <!-- Endings: Start over only -->
-    <div v-else-if="view === 'sent'" key="sent" class="flex flex-1 flex-col items-center justify-center text-center">
-      <CircleCheck :size="60" class="text-ok" aria-hidden="true" />
-      <p class="mt-4 text-2xl font-bold text-navy" data-screen-title>Sent at your request</p>
-      <p class="mt-2 text-lg text-muted">Your choice is logged. {{ formatUsd(amountNum) }} was sent to {{ recipientName }} {{ masked }}.</p>
-      <StoryEndActions @restart="emit('restart')" />
-    </div>
     <div v-else-if="view === 'success'" key="success" class="flex flex-1 flex-col items-center justify-center text-center">
       <CircleCheck :size="64" class="text-ok" aria-hidden="true" />
       <p class="mt-4 text-2xl font-bold text-navy" data-screen-title>{{ formatUsd(amountNum) }} sent to {{ recipientName }}</p>
@@ -299,14 +226,5 @@ const reportRef = computed(() => `SC-${account.value.slice(-6).padStart(6, '0')}
       <p class="mt-2 text-lg text-muted">Nothing was sent.</p>
       <StoryEndActions @restart="emit('restart')" />
     </div>
-    <ReportedOutcome
-      v-else-if="view === 'reported'"
-      key="reported"
-      :amount="amountNum"
-      :report-ref="reportRef"
-      :member-phone="scam.member_phone_masked"
-      standalone
-      @restart="emit('restart')"
-    />
   </Transition>
 </template>
