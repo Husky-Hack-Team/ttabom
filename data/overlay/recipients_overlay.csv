@@ -1,0 +1,373 @@
+synthetic_member_id,recipient_id,bank,account_masked,predates_window,owner_contact_id
+M1001,R1001-03,Sound,••••8233,Yes,
+M1001,R1001-05,Cascade Federal Bank,••••3658,Yes,C1001-1
+M1001,R1001-11,Cascade Federal Bank,••••8723,No,
+M1002,R1002-01,Summit Online Bank,••••8975,Yes,C1002-2
+M1002,R1002-02,Harbor Trust Bank,••••9609,Yes,C1002-1
+M1002,R1002-03,Cascade Federal Bank,••••1322,Yes,
+M1002,R1002-08,Cascade Federal Bank,••••4706,No,
+M1002,R1002-09,Cascade Federal Bank,••••7367,No,
+M1003,R1003-01,Sound,••••8032,Yes,C1003-2
+M1003,R1003-02,Evergreen National,••••6508,Yes,C1003-1
+M1003,R1003-10,Pinecrest Credit Union,••••5696,No,
+M1004,R1004-02,Pinecrest Credit Union,••••6166,Yes,C1004-1
+M1004,R1004-03,Summit Online Bank,••••1250,Yes,
+M1005,R1005-01,Cascade Federal Bank,••••9133,Yes,
+M1005,R1005-03,Pinecrest Credit Union,••••7494,Yes,
+M1005,R1005-04,Sound,••••9460,Yes,C1005-1
+M1006,R1006-01,Pinecrest Credit Union,••••5956,Yes,
+M1006,R1006-02,Cascade Federal Bank,••••6533,Yes,C1006-1
+M1006,R1006-03,Summit Online Bank,••••8166,Yes,C1006-2
+M1007,R1007-01,Harbor Trust Bank,••••8296,Yes,C1007-1
+M1007,R1007-08,Summit Online Bank,••••8045,No,
+M1008,R1008-03,Summit Online Bank,••••4237,Yes,
+M1008,R1008-04,Summit Online Bank,••••7851,Yes,C1008-1
+M1008,R1008-12,Summit Online Bank,••••8486,No,
+M1009,R1009-01,Summit Online Bank,••••3678,Yes,
+M1009,R1009-02,Cascade Federal Bank,••••8572,Yes,C1009-1
+M1009,R1009-10,Cascade Federal Bank,••••7035,No,
+M1009,R1009-11,Harbor Trust Bank,••••2333,No,
+M1010,R1010-01,Evergreen National,••••1999,Yes,C1010-2
+M1010,R1010-02,Harbor Trust Bank,••••7690,Yes,C1010-1
+M1010,R1010-09,Summit Online Bank,••••4112,No,
+M1011,R1011-01,Pinecrest Credit Union,••••8980,Yes,C1011-1
+M1011,R1011-02,Summit Online Bank,••••7846,Yes,
+M1011,R1011-03,Harbor Trust Bank,••••7095,Yes,
+M1011,R1011-08,Evergreen National,••••4823,No,
+M1012,R1012-01,Cascade Federal Bank,••••0542,Yes,C1012-1
+M1012,R1012-09,Evergreen National,••••9785,No,
+M1013,R1013-01,Summit Online Bank,••••8020,Yes,
+M1013,R1013-02,Evergreen National,••••4261,Yes,
+M1014,R1014-02,Harbor Trust Bank,••••8376,Yes,C1014-1
+M1014,R1014-12,Harbor Trust Bank,••••7114,No,
+M1014,R1014-13,Summit Online Bank,••••0550,No,
+M1015,R1015-01,Pinecrest Credit Union,••••7498,Yes,
+M1015,R1015-02,Cascade Federal Bank,••••7183,Yes,
+M1015,R1015-04,Summit Online Bank,••••4240,Yes,C1015-1
+M1015,R1015-10,Harbor Trust Bank,••••2999,No,
+M1016,R1016-03,Harbor Trust Bank,••••1053,Yes,C1016-2
+M1016,R1016-04,Harbor Trust Bank,••••6064,Yes,C1016-1
+M1016,R1016-12,Cascade Federal Bank,••••3188,No,
+M1016,R1016-13,Harbor Trust Bank,••••2397,No,
+M1017,R1017-01,Cascade Federal Bank,••••1510,Yes,C1017-2
+M1017,R1017-03,Sound,••••9513,Yes,C1017-1
+M1018,R1018-04,Cascade Federal Bank,••••9996,Yes,C1018-1
+M1018,R1018-13,Evergreen National,••••4060,No,
+M1018,R1018-14,Cascade Federal Bank,••••0731,No,
+M1019,R1019-01,Pinecrest Credit Union,••••5853,Yes,C1019-1
+M1019,R1019-02,Sound,••••5135,Yes,
+M1019,R1019-03,Summit Online Bank,••••8060,Yes,
+M1019,R1019-10,Evergreen National,••••8942,No,
+M1020,R1020-01,Sound,••••9632,Yes,C1020-1
+M1020,R1020-03,Sound,••••9799,Yes,
+M1020,R1020-05,Summit Online Bank,••••4762,Yes,
+M1020,R1020-10,Cascade Federal Bank,••••6844,No,
+M1021,R1021-02,Evergreen National,••••9601,Yes,
+M1021,R1021-03,Harbor Trust Bank,••••6396,Yes,
+M1021,R1021-04,Summit Online Bank,••••3222,Yes,C1021-1
+M1021,R1021-12,Harbor Trust Bank,••••0231,No,
+M1022,R1022-01,Harbor Trust Bank,••••1203,Yes,C1022-1
+M1023,R1023-01,Sound,••••5685,Yes,
+M1023,R1023-03,Cascade Federal Bank,••••0419,Yes,
+M1023,R1023-08,Summit Online Bank,••••7799,No,
+M1023,R1023-09,Pinecrest Credit Union,••••4975,No,
+M1024,R1024-01,Cascade Federal Bank,••••8152,Yes,
+M1024,R1024-02,Summit Online Bank,••••2797,Yes,
+M1024,R1024-03,Sound,••••8513,Yes,
+M1024,R1024-04,Sound,••••5511,Yes,C1024-1
+M1024,R1024-11,Harbor Trust Bank,••••9801,No,
+M1024,R1024-12,Evergreen National,••••1138,No,
+M1025,R1025-01,Cascade Federal Bank,••••3202,Yes,
+M1025,R1025-02,Evergreen National,••••0741,Yes,
+M1025,R1025-03,Cascade Federal Bank,••••7402,Yes,C1025-1
+M1025,R1025-04,Evergreen National,••••7927,Yes,
+M1025,R1025-11,Cascade Federal Bank,••••2115,No,
+M1026,R1026-01,Evergreen National,••••8468,Yes,
+M1026,R1026-02,Evergreen National,••••2627,Yes,C1026-2
+M1026,R1026-04,Evergreen National,••••6389,Yes,C1026-1
+M1026,R1026-10,Pinecrest Credit Union,••••6969,No,
+M1027,R1027-01,Cascade Federal Bank,••••6278,Yes,C1027-2
+M1027,R1027-02,Pinecrest Credit Union,••••2862,Yes,C1027-1
+M1027,R1027-09,Pinecrest Credit Union,••••7600,No,
+M1028,R1028-01,Harbor Trust Bank,••••4713,Yes,
+M1028,R1028-02,Pinecrest Credit Union,••••8508,Yes,C1028-1
+M1028,R1028-04,Cascade Federal Bank,••••8638,Yes,
+M1029,R1029-03,Pinecrest Credit Union,••••1549,Yes,
+M1029,R1029-04,Evergreen National,••••0080,Yes,
+M1029,R1029-09,Cascade Federal Bank,••••7440,No,
+M1029,R1029-10,Pinecrest Credit Union,••••6684,No,
+M1030,R1030-01,Evergreen National,••••0445,Yes,
+M1030,R1030-03,Evergreen National,••••5762,Yes,C1030-1
+M1030,R1030-04,Summit Online Bank,••••8820,Yes,
+M1030,R1030-13,Evergreen National,••••1797,No,
+M1031,R1031-01,Pinecrest Credit Union,••••9106,Yes,
+M1031,R1031-02,Evergreen National,••••9336,Yes,C1031-1
+M1031,R1031-03,Sound,••••4392,Yes,
+M1031,R1031-04,Evergreen National,••••1662,Yes,
+M1032,R1032-02,Cascade Federal Bank,••••7144,Yes,C1032-1
+M1032,R1032-03,Sound,••••0990,Yes,
+M1032,R1032-10,Pinecrest Credit Union,••••3039,No,
+M1033,R1033-03,Cascade Federal Bank,••••8300,Yes,
+M1033,R1033-04,Summit Online Bank,••••1047,Yes,C1033-2
+M1033,R1033-05,Sound,••••5154,Yes,C1033-1
+M1034,R1034-01,Sound,••••4196,Yes,C1034-1
+M1034,R1034-02,Sound,••••6744,Yes,
+M1034,R1034-03,Pinecrest Credit Union,••••6791,Yes,
+M1035,R1035-01,Cascade Federal Bank,••••1580,Yes,
+M1035,R1035-02,Sound,••••5077,Yes,
+M1035,R1035-03,Sound,••••9194,Yes,C1035-1
+M1035,R1035-08,Summit Online Bank,••••5739,No,
+M1036,R1036-01,Harbor Trust Bank,••••9949,Yes,
+M1036,R1036-02,Summit Online Bank,••••0622,Yes,
+M1036,R1036-09,Harbor Trust Bank,••••5178,No,
+M1036,R1036-10,Summit Online Bank,••••3532,No,
+M1036,R1036-11,Summit Online Bank,••••7580,No,
+M1037,R1037-01,Cascade Federal Bank,••••6130,Yes,C1037-1
+M1037,R1037-09,Summit Online Bank,••••4121,No,
+M1038,R1038-02,Pinecrest Credit Union,••••0944,Yes,
+M1038,R1038-04,Harbor Trust Bank,••••0387,Yes,
+M1038,R1038-05,Sound,••••5415,Yes,
+M1039,R1039-02,Sound,••••2004,Yes,
+M1039,R1039-03,Sound,••••6826,Yes,C1039-2
+M1039,R1039-05,Cascade Federal Bank,••••8882,Yes,C1039-1
+M1039,R1039-12,Pinecrest Credit Union,••••3234,No,
+M1040,R1040-01,Cascade Federal Bank,••••2656,Yes,C1040-1
+M1040,R1040-03,Cascade Federal Bank,••••0611,Yes,
+M1040,R1040-04,Sound,••••5800,Yes,C1040-2
+M1040,R1040-05,Pinecrest Credit Union,••••0471,Yes,
+M1041,R1041-09,Harbor Trust Bank,••••9472,No,
+M1041,R1041-10,Evergreen National,••••5832,No,
+M1042,R1042-01,Harbor Trust Bank,••••3920,Yes,
+M1042,R1042-03,Evergreen National,••••2051,Yes,C1042-1
+M1042,R1042-04,Sound,••••0465,Yes,
+M1043,R1043-01,Summit Online Bank,••••9091,Yes,
+M1043,R1043-02,Pinecrest Credit Union,••••2419,Yes,C1043-1
+M1043,R1043-03,Sound,••••0271,Yes,
+M1044,R1044-01,Sound,••••7845,Yes,
+M1044,R1044-03,Pinecrest Credit Union,••••2271,Yes,
+M1044,R1044-04,Summit Online Bank,••••1465,Yes,C1044-1
+M1044,R1044-09,Evergreen National,••••9060,No,
+M1045,R1045-01,Sound,••••8422,Yes,
+M1045,R1045-02,Pinecrest Credit Union,••••8527,Yes,
+M1045,R1045-03,Pinecrest Credit Union,••••0921,Yes,
+M1045,R1045-04,Cascade Federal Bank,••••3978,Yes,
+M1046,R1046-01,Evergreen National,••••8333,Yes,
+M1046,R1046-02,Harbor Trust Bank,••••5897,Yes,
+M1046,R1046-03,Evergreen National,••••9201,Yes,C1046-1
+M1046,R1046-08,Pinecrest Credit Union,••••5630,No,
+M1047,R1047-01,Pinecrest Credit Union,••••5883,Yes,C1047-1
+M1047,R1047-02,Harbor Trust Bank,••••8991,Yes,
+M1047,R1047-03,Summit Online Bank,••••5114,Yes,
+M1047,R1047-04,Sound,••••6726,Yes,
+M1047,R1047-11,Evergreen National,••••7943,No,
+M1048,R1048-01,Pinecrest Credit Union,••••8572,Yes,
+M1048,R1048-02,Cascade Federal Bank,••••2827,Yes,
+M1049,R1049-01,Sound,••••6107,Yes,
+M1049,R1049-02,Pinecrest Credit Union,••••2260,Yes,
+M1049,R1049-09,Cascade Federal Bank,••••0300,No,
+M1050,R1050-01,Summit Online Bank,••••5025,Yes,
+M1050,R1050-02,Harbor Trust Bank,••••6235,Yes,C1050-1
+M1050,R1050-10,Summit Online Bank,••••8463,No,
+M1051,R1051-01,Evergreen National,••••8335,Yes,C1051-1
+M1051,R1051-02,Sound,••••2324,Yes,
+M1051,R1051-03,Pinecrest Credit Union,••••8970,Yes,C1051-2
+M1051,R1051-10,Pinecrest Credit Union,••••5085,No,
+M1052,R1052-02,Sound,••••9711,Yes,C1052-1
+M1052,R1052-03,Evergreen National,••••2657,Yes,
+M1052,R1052-10,Pinecrest Credit Union,••••4838,No,
+M1052,R1052-11,Summit Online Bank,••••4678,No,
+M1052,R1052-12,Pinecrest Credit Union,••••2195,No,
+M1053,R1053-03,Evergreen National,••••0154,Yes,
+M1053,R1053-12,Summit Online Bank,••••7864,No,
+M1054,R1054-02,Pinecrest Credit Union,••••8804,Yes,C1054-1
+M1054,R1054-09,Evergreen National,••••8457,No,
+M1055,R1055-01,Sound,••••5155,Yes,C1055-2
+M1055,R1055-02,Evergreen National,••••0465,Yes,C1055-1
+M1055,R1055-10,Cascade Federal Bank,••••8437,No,
+M1056,R1056-01,Cascade Federal Bank,••••6136,Yes,
+M1056,R1056-02,Sound,••••4958,Yes,
+M1056,R1056-09,Evergreen National,••••8718,No,
+M1056,R1056-10,Evergreen National,••••9822,No,
+M1056,R1056-11,Summit Online Bank,••••4065,No,
+M1057,R1057-01,Sound,••••5345,Yes,
+M1057,R1057-02,Cascade Federal Bank,••••6245,Yes,
+M1057,R1057-03,Sound,••••4939,Yes,C1057-1
+M1057,R1057-10,Cascade Federal Bank,••••5698,No,
+M1058,R1058-01,Harbor Trust Bank,••••1981,Yes,
+M1058,R1058-02,Evergreen National,••••5876,Yes,C1058-1
+M1058,R1058-08,Harbor Trust Bank,••••9589,No,
+M1058,R1058-09,Pinecrest Credit Union,••••1352,No,
+M1059,R1059-02,Sound,••••1439,Yes,C1059-1
+M1060,R1060-01,Pinecrest Credit Union,••••4346,Yes,
+M1060,R1060-02,Evergreen National,••••2758,Yes,
+M1061,R1061-01,Summit Online Bank,••••9200,Yes,C1061-1
+M1061,R1061-02,Harbor Trust Bank,••••6603,Yes,
+M1061,R1061-09,Pinecrest Credit Union,••••2895,No,
+M1061,R1061-10,Evergreen National,••••7585,No,
+M1062,R1062-01,Sound,••••5710,Yes,
+M1062,R1062-02,Pinecrest Credit Union,••••6712,Yes,
+M1062,R1062-03,Summit Online Bank,••••6252,Yes,
+M1062,R1062-04,Sound,••••7236,Yes,
+M1062,R1062-12,Summit Online Bank,••••2090,No,
+M1063,R1063-01,Pinecrest Credit Union,••••1930,Yes,
+M1063,R1063-02,Harbor Trust Bank,••••4319,Yes,
+M1063,R1063-03,Sound,••••4393,Yes,
+M1064,R1064-01,Sound,••••2350,Yes,
+M1064,R1064-04,Cascade Federal Bank,••••4389,Yes,C1064-1
+M1064,R1064-12,Pinecrest Credit Union,••••9410,No,
+M1065,R1065-02,Harbor Trust Bank,••••6544,Yes,
+M1065,R1065-03,Sound,••••5393,Yes,
+M1065,R1065-04,Pinecrest Credit Union,••••1556,Yes,C1065-1
+M1065,R1065-05,Harbor Trust Bank,••••8952,Yes,C1065-2
+M1066,R1066-01,Harbor Trust Bank,••••5769,Yes,C1066-2
+M1066,R1066-02,Cascade Federal Bank,••••6549,Yes,
+M1066,R1066-03,Cascade Federal Bank,••••4375,Yes,
+M1066,R1066-04,Pinecrest Credit Union,••••2139,Yes,C1066-1
+M1066,R1066-12,Pinecrest Credit Union,••••9485,No,
+M1066,R1066-13,Summit Online Bank,••••6793,No,
+M1067,R1067-01,Harbor Trust Bank,••••7912,Yes,C1067-1
+M1067,R1067-02,Cascade Federal Bank,••••3602,Yes,
+M1067,R1067-08,Cascade Federal Bank,••••4401,No,
+M1068,R1068-02,Evergreen National,••••7489,Yes,C1068-1
+M1069,R1069-04,Summit Online Bank,••••6052,Yes,
+M1070,R1070-01,Sound,••••3074,Yes,
+M1070,R1070-02,Cascade Federal Bank,••••1566,Yes,C1070-1
+M1070,R1070-03,Sound,••••3594,Yes,
+M1071,R1071-01,Evergreen National,••••9930,Yes,
+M1071,R1071-10,Evergreen National,••••5069,No,
+M1072,R1072-01,Sound,••••6832,Yes,C1072-1
+M1072,R1072-02,Summit Online Bank,••••9161,Yes,
+M1072,R1072-03,Sound,••••0463,Yes,
+M1072,R1072-04,Sound,••••6873,Yes,
+M1072,R1072-12,Cascade Federal Bank,••••3035,No,
+M1073,R1073-01,Summit Online Bank,••••3790,Yes,
+M1073,R1073-02,Harbor Trust Bank,••••5591,Yes,C1073-1
+M1073,R1073-09,Pinecrest Credit Union,••••5692,No,
+M1074,R1074-01,Harbor Trust Bank,••••4183,Yes,C1074-1
+M1074,R1074-02,Pinecrest Credit Union,••••4097,Yes,
+M1074,R1074-03,Sound,••••8028,Yes,
+M1075,R1075-01,Sound,••••7875,Yes,
+M1075,R1075-02,Pinecrest Credit Union,••••7636,Yes,C1075-1
+M1075,R1075-08,Evergreen National,••••6021,No,
+M1076,R1076-01,Sound,••••6552,Yes,C1076-1
+M1076,R1076-03,Summit Online Bank,••••0887,Yes,
+M1077,R1077-02,Cascade Federal Bank,••••8338,Yes,C1077-1
+M1077,R1077-09,Summit Online Bank,••••4892,No,
+M1078,R1078-03,Summit Online Bank,••••1486,Yes,
+M1078,R1078-04,Summit Online Bank,••••9762,Yes,
+M1079,R1079-03,Pinecrest Credit Union,••••5564,Yes,C1079-1
+M1079,R1079-04,Cascade Federal Bank,••••9208,Yes,
+M1080,R1080-02,Evergreen National,••••4218,Yes,C1080-1
+M1080,R1080-03,Summit Online Bank,••••8528,Yes,
+M1080,R1080-05,Cascade Federal Bank,••••9983,Yes,
+M1080,R1080-10,Evergreen National,••••0473,No,
+M1081,R1081-01,Evergreen National,••••7028,Yes,C1081-2
+M1081,R1081-02,Summit Online Bank,••••2072,Yes,C1081-1
+M1082,R1082-01,Pinecrest Credit Union,••••8004,Yes,
+M1082,R1082-02,Sound,••••5337,Yes,
+M1082,R1082-03,Harbor Trust Bank,••••8727,Yes,
+M1082,R1082-08,Summit Online Bank,••••8832,No,
+M1083,R1083-02,Sound,••••9941,Yes,C1083-2
+M1083,R1083-03,Evergreen National,••••2358,Yes,C1083-1
+M1084,R1084-01,Sound,••••9387,Yes,
+M1084,R1084-02,Sound,••••0565,Yes,
+M1084,R1084-03,Sound,••••4904,Yes,C1084-1
+M1084,R1084-08,Evergreen National,••••2280,No,
+M1084,R1084-09,Pinecrest Credit Union,••••8852,No,
+M1085,R1085-01,Evergreen National,••••7492,Yes,
+M1085,R1085-02,Sound,••••0878,Yes,C1085-1
+M1086,R1086-03,Evergreen National,••••6781,Yes,C1086-1
+M1086,R1086-04,Harbor Trust Bank,••••8946,Yes,
+M1086,R1086-10,Cascade Federal Bank,••••4925,No,
+M1086,R1086-11,Evergreen National,••••8430,No,
+M1087,R1087-01,Summit Online Bank,••••1507,Yes,
+M1087,R1087-04,Harbor Trust Bank,••••2539,Yes,C1087-1
+M1087,R1087-10,Pinecrest Credit Union,••••2386,No,
+M1088,R1088-03,Cascade Federal Bank,••••7714,Yes,
+M1088,R1088-04,Sound,••••1550,Yes,C1088-1
+M1088,R1088-05,Pinecrest Credit Union,••••5386,Yes,
+M1088,R1088-10,Cascade Federal Bank,••••2683,No,
+M1088,R1088-11,Summit Online Bank,••••3134,No,
+M1089,R1089-01,Cascade Federal Bank,••••6927,Yes,C1089-1
+M1089,R1089-03,Evergreen National,••••2796,Yes,
+M1089,R1089-04,Sound,••••8102,Yes,
+M1090,R1090-01,Sound,••••2597,Yes,
+M1090,R1090-02,Harbor Trust Bank,••••6933,Yes,
+M1090,R1090-08,Harbor Trust Bank,••••5950,No,
+M1091,R1091-01,Pinecrest Credit Union,••••7216,Yes,C1091-1
+M1091,R1091-03,Summit Online Bank,••••9938,Yes,
+M1092,R1092-01,Evergreen National,••••3202,Yes,C1092-2
+M1092,R1092-02,Sound,••••1291,Yes,C1092-1
+M1092,R1092-03,Summit Online Bank,••••2589,Yes,
+M1092,R1092-11,Cascade Federal Bank,••••2820,No,
+M1093,R1093-01,Sound,••••7103,Yes,
+M1093,R1093-02,Sound,••••7010,Yes,
+M1093,R1093-03,Sound,••••2373,Yes,
+M1094,R1094-01,Pinecrest Credit Union,••••4704,Yes,
+M1094,R1094-02,Harbor Trust Bank,••••0156,Yes,C1094-1
+M1094,R1094-03,Harbor Trust Bank,••••4474,Yes,
+M1094,R1094-04,Harbor Trust Bank,••••2260,Yes,
+M1095,R1095-01,Sound,••••2359,Yes,
+M1095,R1095-02,Pinecrest Credit Union,••••7471,Yes,
+M1096,R1096-11,Harbor Trust Bank,••••9970,No,
+M1097,R1097-02,Cascade Federal Bank,••••9178,Yes,C1097-2
+M1097,R1097-03,Pinecrest Credit Union,••••1291,Yes,C1097-1
+M1098,R1098-01,Pinecrest Credit Union,••••8947,Yes,C1098-1
+M1098,R1098-02,Summit Online Bank,••••8688,Yes,
+M1099,R1099-01,Pinecrest Credit Union,••••4862,Yes,
+M1100,R1100-01,Sound,••••9669,Yes,
+M1100,R1100-02,Sound,••••8644,Yes,
+M1100,R1100-03,Summit Online Bank,••••1782,Yes,
+M1100,R1100-05,Summit Online Bank,••••7486,Yes,C1100-1
+M1101,R1101-01,Summit Online Bank,••••0359,Yes,
+M1101,R1101-02,Sound,••••5216,Yes,C1101-1
+M1101,R1101-09,Evergreen National,••••0435,No,
+M1102,R1102-02,Sound,••••1505,Yes,
+M1102,R1102-03,Sound,••••4177,Yes,C1102-1
+M1102,R1102-04,Sound,••••0756,Yes,
+M1102,R1102-11,Cascade Federal Bank,••••9862,No,
+M1103,R1103-01,Pinecrest Credit Union,••••2510,Yes,C1103-1
+M1103,R1103-02,Harbor Trust Bank,••••3965,Yes,
+M1104,R1104-01,Harbor Trust Bank,••••3973,Yes,
+M1104,R1104-02,Summit Online Bank,••••5121,Yes,
+M1104,R1104-03,Harbor Trust Bank,••••4083,Yes,
+M1104,R1104-09,Summit Online Bank,••••3019,No,
+M1105,R1105-02,Cascade Federal Bank,••••9639,Yes,C1105-1
+M1105,R1105-09,Harbor Trust Bank,••••9675,No,
+M1106,R1106-02,Summit Online Bank,••••0267,Yes,
+M1106,R1106-03,Evergreen National,••••6303,Yes,
+M1106,R1106-04,Summit Online Bank,••••7625,Yes,
+M1106,R1106-05,Pinecrest Credit Union,••••3949,Yes,C1106-1
+M1106,R1106-11,Summit Online Bank,••••5142,No,
+M1107,R1107-01,Sound,••••7073,Yes,C1107-1
+M1107,R1107-02,Summit Online Bank,••••0430,Yes,C1107-2
+M1108,R1108-03,Summit Online Bank,••••2725,Yes,C1108-1
+M1109,R1109-02,Cascade Federal Bank,••••9220,Yes,C1109-1
+M1110,R1110-02,Evergreen National,••••9610,Yes,C1110-1
+M1110,R1110-03,Sound,••••2786,Yes,
+M1111,R1111-01,Cascade Federal Bank,••••1731,Yes,
+M1111,R1111-02,Harbor Trust Bank,••••6568,Yes,
+M1111,R1111-03,Evergreen National,••••3221,Yes,
+M1111,R1111-11,Cascade Federal Bank,••••4303,No,
+M1111,R1111-12,Evergreen National,••••8597,No,
+M1112,R1112-01,Sound,••••6131,Yes,
+M1112,R1112-02,Sound,••••2746,Yes,
+M1112,R1112-09,Cascade Federal Bank,••••3580,No,
+M1113,R1113-01,Summit Online Bank,••••1895,Yes,C1113-1
+M1113,R1113-02,Summit Online Bank,••••0582,Yes,
+M1113,R1113-03,Harbor Trust Bank,••••8445,Yes,
+M1114,R1114-02,Cascade Federal Bank,••••3113,Yes,C1114-2
+M1114,R1114-03,Harbor Trust Bank,••••0770,Yes,C1114-1
+M1114,R1114-11,Pinecrest Credit Union,••••1492,No,
+M1114,R1114-12,Evergreen National,••••1073,No,
+M1115,R1115-01,Sound,••••0119,Yes,
+M1115,R1115-02,Sound,••••0714,Yes,C1115-2
+M1115,R1115-03,Pinecrest Credit Union,••••1168,Yes,C1115-1
+M1115,R1115-11,Summit Online Bank,••••2745,No,
+M1116,R1116-01,Summit Online Bank,••••9563,Yes,
+M1116,R1116-02,Harbor Trust Bank,••••0872,Yes,C1116-1
+M1116,R1116-03,Evergreen National,••••8794,Yes,
+M1117,R1117-01,Cascade Federal Bank,••••3969,Yes,C1117-2
+M1117,R1117-02,Sound,••••6774,Yes,C1117-1
+M1118,R1118-01,Cascade Federal Bank,••••7227,Yes,
+M1118,R1118-03,Evergreen National,••••2811,Yes,
